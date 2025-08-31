@@ -2,80 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dobby Legal Advisor</title>
+  <title>Dobby Legal Advisor (Pidgin)</title>
+  <!-- Add minimal styling -->
   <style>
-    body { font-family: Arial, sans-serif; background: #fff; padding: 20px; }
-    #chat { max-width: 700px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px; }
-    .msg { margin: 10px 0; }
-    .user { font-weight: bold; color: #333; }
-    .bot { color: #007BFF; white-space: pre-line; }
-    input, button { padding: 10px; margin-top: 10px; }
-    button { background: orange; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background: darkorange; }
+    body{font-family:sans-serif;background:#f2f2f7;padding:20px;}
+    textarea, .response{width:100%;border:1px solid #ccc;padding:10px;border-radius:6px;margin-top:6px;}
+    button{background:#ff6600;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-top:10px;}
+    .response{min-height:100px;white-space:pre-wrap;}
+    .section {margin-bottom:20px;}
   </style>
 </head>
 <body>
-  <div id="chat">
-    <h2>⚖️ Dobby Legal Advisor</h2>
-    <div id="messages"></div>
-    <input type="text" id="userInput" placeholder="Ask for legal advice...">
-    <button onclick="getAdvice()">Ask</button>
+  <h1>Dobby Legal Advisor (Pidgin)</h1>
+
+  <div class="section">
+    <label>Enter your legal issue or search term:</label>
+    <textarea id="userInput" placeholder="e.g., Trump evictions 2025"></textarea>
+    <button onclick="getAdvice()">Ask Dobby</button>
   </div>
 
-  <script>
-    async function getAdvice() {
-      const input = document.getElementById("userInput").value;
-      if (!input) return;
+  <div class="section">
+    <strong>Relevant Federal Register Text:</strong>
+    <div class="response" id="fedResponse"></div>
+  </div>
 
-      const messages = document.getElementById("messages");
-      messages.innerHTML += `<div class="msg user">🧑: ${input}</div>`;
+  <div class="section">
+    <strong>Relevant Case Opinion:</strong>
+    <div class="response" id="caseResponse"></div>
+  </div>
 
-      // Call our Vercel proxy
-      try {
-        const res = await fetch(`/api/law?query=${encodeURIComponent(input)}`);
-        const data = await res.json();
+  <div class="section">
+    <strong>Dobby Advice (Pidgin):</strong>
+    <div class="response" id="aiResponse">Dobby go talk soon...</div>
+  </div>
 
-        // Now call Fireworks AI (Dobby) to interpret in Pidgin
-        const fwRes = await fetch("https://api.fireworks.ai/inference/v1/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer fw_3ZYt5vRJztdY1fXajRko5YCt",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b",
-            prompt: `You be lawyer wey sabi pidgin. Client ask: "${input}". 
-Here be law data wey I find: ${JSON.stringify(data)}. 
-Explain am well for Pidgin, gimme advice like real lawyer.`,
-            max_tokens: 300
-          })
-        });
+<script>
+  const FIREWORKS_KEY = "fw_3ZYt5vRJztdY1fXajRko5YCt";
+  const MODEL = "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b";
 
-        const fwData = await fwRes.json();
-        const botReply = fwData.choices?.[0]?.text || "No reply from AI.";
+  async function fetchFederalRegister(query) {
+    const url = `https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=${encodeURIComponent(query)}`;
+    const r = await fetch(url);
+    if (!r.ok) return 'No FedReg docs found.';
+    const j = await r.json();
+    return j.results?.[0]?.abstract || 'No abstract available.';
+  }
 
-        typeEffect(botReply, messages);
-      } catch (err) {
-        messages.innerHTML += `<div class="msg bot">❌ Error: ${err.message}</div>`;
-      }
+  async function fetchCaseOpinion(query) {
+    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent("https://www.courtlistener.com/api/rest/v3/opinions/?search=" + query)}`;
+    try {
+      const r = await fetch(url);
+      const data = await r.json();
+      const parsed = JSON.parse(data.contents);
+      const first = parsed.results?.[0];
+      return first?.caseName + " — " + (first?.excerpt?.substring(0, 300) || "No excerpt found.");
+    } catch {
+      return 'Error fetching case opinion.';
     }
+  }
 
-    // Typing effect for AI messages
-    function typeEffect(text, container) {
-      let i = 0;
-      const msg = document.createElement("div");
-      msg.className = "msg bot";
-      container.appendChild(msg);
-
-      function typing() {
-        if (i < text.length) {
-          msg.textContent += text.charAt(i);
-          i++;
-          setTimeout(typing, 30);
-        }
+  function typeEffect(text, el, speed = 30) {
+    el.textContent = "";
+    let i = 0;
+    (function type() {
+      if (i < text.length) {
+        el.textContent += text[i++];
+        setTimeout(type, speed);
       }
-      typing();
-    }
-  </script>
+    })();
+  }
+
+  async function askDobby(prompt) {
+    const payload = {
+      model: MODEL,
+      messages: [
+        { role: 'system', content: 'You be Dobby, Nigerian Pidgin lawyer. Answer in professional Pidgin.' },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 500
+    };
+    const r = await fetch("https://api.fireworks.ai/inference/v1/chat/completions", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${FIREWORKS_KEY}` },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) return 'Fireworks API error.';
+    const j = await r.json();
+    return j.choices?.[0]?.message?.content || 'No answer.';
+  }
+
+  async function getAdvice() {
+    const q = document.getElementById('userInput').value.trim();
+    if (!q) return;
+    document.getElementById('fedResponse').textContent = 'Loading...';
+    document.getElementById('caseResponse').textContent = 'Loading...';
+    const fed = await fetchFederalRegister(q);
+    document.getElementById('fedResponse').textContent = fed;
+    const cas = await fetchCaseOpinion(q);
+    document.getElementById('caseResponse').textContent = cas;
+
+    const prompt = `User issue: ${q}\n\nFederal Register excerpt: ${fed}\n\nCase excerpt: ${cas}\n\nGive strategy and advice in pidgin.`;
+    const answer = await askDobby(prompt);
+    typeEffect(answer, document.getElementById('aiResponse'));
+  }
+</script>
 </body>
 </html>
