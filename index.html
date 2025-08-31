@@ -1,116 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Dobby Legal Strategist (Pidgin Edition)</title>
+  <meta charset="UTF-8">
+  <title>Dobby Legal Advisor ⚖️</title>
   <style>
-    /* [Same theming and styles as before] */
-    :root{--bg:#0b0c10;--panel:#111217;--ink:#eaeef2;--muted:#a7b0be;--brand:#ff7a00;--border:#1a1c22}
-    body{margin:0;background:linear-gradient(#0b0c10,#0e1016);color:var(--ink);font-family:sans-serif}
-    .wrap{max-width:800px;margin:0 auto;padding:20px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
-    label{font-size:14px;color:var(--muted)}
-    input,textarea{width:100%;padding:10px;margin-top:8px;background:#0f1117;color:var(--ink);border:1px solid #1b1e27;border-radius:8px;font-size:16px}
-    button{padding:10px 16px;border:none;border-radius:8px;background:var(--brand);color:#1b1106;font-weight:600;cursor:pointer}
-    .out{background:#0f1117;border:1px dashed #21232d;border-radius:8px;padding:16px;min-height:150px;white-space:pre-wrap}
-    .laws{margin-top:10px;font-size:14px;color:var(--muted)}
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid #2a2d3a;border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin-right:6px}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #ff6600;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #ff6600;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .response {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f1f1;
+      border-radius: 8px;
+      min-height: 80px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h2>Dobby Legal Strategist (Pidgin)</h2>
-      <label for="query">Enter statute reference (e.g., ukpga/2008/9) or describe issue:</label>
-      <textarea id="query" placeholder="e.g., enter ukpga/2008/9"></textarea>
-      <button id="goBtn">Get Advice</button>
-      <div id="status" style="margin-top:10px;color:var(--muted)"></div>
-    </div>
-    <div class="card">
-      <h3>Statute Text</h3>
-      <div id="lawText" style="max-height:200px;overflow:auto;background:#14151c;padding:10px;border-radius:8px;"></div>
-    </div>
-    <div class="card">
-      <h3>Dobby Advice (Pidgin)</h3>
-      <div class="out" id="advice">Dobby go yan here...</div>
-    </div>
+  <div class="container">
+    <h1>Dobby Legal Advisor ⚖️</h1>
+    <p>Ask your legal question (Dobby go reply you for Pidgin):</p>
+    <textarea id="userInput" placeholder="Type your question here..."></textarea>
+    <button onclick="getAdvice()">Get Advice</button>
+    <div class="response" id="response"></div>
   </div>
 
   <script>
-    const FIREWORKS_API_KEY = 'REPLACE_WITH_YOUR_KEY';
-    const FIREWORKS_URL = 'https://api.fireworks.ai/inference/v1/chat/completions';
-    const MODEL = 'accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b';
+    const apiKey = "fw_3ZYt5vRJztdY1fXajRko5YCt"; // your Fireworks API key
+    const model = "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b";
 
-    const queryEl = document.getElementById('query');
-    const goBtn = document.getElementById('goBtn');
-    const statusEl = document.getElementById('status');
-    const lawTextEl = document.getElementById('lawText');
-    const adviceEl = document.getElementById('advice');
-
-    function setStatus(msg){
-      statusEl.textContent = msg;
-    }
-
-    async function fetchLaw(id){
-      const url = `https://www.legislation.gov.uk/id/${id}/data.json`;
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('Law not found');
-      const data = await res.json();
-      return data;
-    }
-
-    function extractLawText(data){
-      if(data.data && data.data.text && Array.isArray(data.data.text.content)){
-        return data.data.text.content.map(c => typeof c === 'string' ? c : '').slice(0,50).join('\n');
-      }
-      return JSON.stringify(data);
-    }
-
-    async function askAI(statute, userInput){
-      const sys = {role:'system', content:
-        `You be Dobby, legal strategist wey dey talk pidgin English. Make you explain di law (wey we provide) and yan strategy for law matter. Talk like lawyer wey dey pidgin.`};
-      const user = {role:'user', content:
-        `Statute text:\n${statute}\n\nIssue: ${userInput}\n\nYarn advice in pidgin.`};
-      const body = {model:MODEL, messages:[sys,user], temperature:0.2, max_tokens:600};
-
-      const r = await fetch(FIREWORKS_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${FIREWORKS_API_KEY}`},
-        body:JSON.stringify(body)
-      });
-      if(!r.ok) throw new Error('Fireworks API error: ' + r.status);
-      const j = await r.json();
-      return j.choices?.[0]?.message?.content || '';
-    }
-
-    async function typeWriter(text, el, speed=20){
-      el.textContent = '';
-      for(let ch of text){
-        el.textContent += ch;
-        await new Promise(r => setTimeout(r, speed));
-      }
-    }
-
-    goBtn.onclick = async ()=>{
-      const q = queryEl.value.trim();
-      if(!q) return;
-      setStatus('Fetching law...');
-      lawTextEl.textContent = '';
-      adviceEl.textContent = '';
+    async function fetchLawData(query) {
+      const url = `https://api.allorigins.win/get?url=${encodeURIComponent("https://www.courtlistener.com/api/rest/v3/opinions/?search=" + query)}`;
       try {
-        const data = await fetchLaw(q);
-        const txt = extractLawText(data);
-        lawTextEl.textContent = txt;
-        setStatus('Getting advice from Dobby...');
-        const reply = await askAI(txt, q);
-        setStatus('Done');
-        await typeWriter(reply, adviceEl);
-      } catch(e) {
-        setStatus(e.message);
-        adviceEl.textContent = '';
+        const res = await fetch(url);
+        const data = await res.json();
+        const parsed = JSON.parse(data.contents);
+        if (parsed.results && parsed.results.length > 0) {
+          return parsed.results[0].caseName + ": " + parsed.results[0].plain_text.substring(0, 500);
+        } else {
+          return "No matching law case found.";
+        }
+      } catch (err) {
+        return "Error fetching law data.";
       }
-    };
+    }
+
+    async function getAdvice() {
+      const input = document.getElementById("userInput").value;
+      const responseBox = document.getElementById("response");
+      responseBox.innerHTML = "Dobby dey reason... ⏳";
+
+      const lawText = await fetchLawData(input);
+
+      const payload = {
+        model: model,
+        messages: [
+          { role: "system", content: "You be Nigerian Pidgin lawyer assistant. Answer user in professional Pidgin tone." },
+          { role: "user", content: `User Question: ${input}\nRelevant Law: ${lawText}\nGive legal advice.` }
+        ],
+        max_tokens: 300
+      };
+
+      try {
+        const res = await fetch("https://api.fireworks.ai/inference/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        let output = data.choices[0].message.content;
+        typeEffect(output, responseBox);
+      } catch (err) {
+        responseBox.innerHTML = "Error calling AI service.";
+      }
+    }
+
+    function typeEffect(text, element) {
+      element.innerHTML = "";
+      let i = 0;
+      (function typing() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typing, 30);
+        }
+      })();
+    }
   </script>
 </body>
 </html>
