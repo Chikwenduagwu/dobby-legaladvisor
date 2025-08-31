@@ -1,213 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dobby Legal Strategist — Browser‑friendly (AllOrigins Proxy + CourtListener)</title>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dobby Legal Strategist (Pidgin Edition)</title>
   <style>
-    :root{--bg:#0b0c10;--panel:#111217;--ink:#eaeef2;--muted:#9aa4b4;--brand:#ff7a00;--border:#1a1c22}
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,#0b0c10 0%,#0e1016 100%);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:1000px;margin:20px auto;padding:20px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
-    @media(max-width:860px){.grid{grid-template-columns:1fr}}
-    label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
-    textarea,input{width:100%;background:#0f1117;color:var(--ink);border:1px solid #1b1e27;border-radius:10px;padding:12px;font-size:15px}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:flex;gap:10px;align-items:center;margin-top:12px}
-    button{background:var(--brand);color:#120800;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-    .ghost{background:transparent;border:1px dashed #232430;color:var(--muted)}
-    .out{padding:14px;min-height:180px;border-radius:10px;border:1px dashed #21232d;background:#0f1117;white-space:pre-wrap}
-    .muted{color:var(--muted)}
-    .laws{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-    .law{background:#0d0f15;border:1px solid #1b1f2c;border-radius:8px;padding:12px}
-    .small{font-size:12px}
-    .pill{display:inline-flex;align-items:center;gap:8px;background:#12131a;border:1px solid #222430;border-radius:999px;padding:6px 10px;font-size:12px;color:#c6cbd6}
-    .spinner{width:16px;height:16px;border-radius:50%;border:2px solid #2a2d3a;border-top-color:var(--brand);animation:spin 1s linear infinite;display:inline-block}
+    /* [Same theming and styles as before] */
+    :root{--bg:#0b0c10;--panel:#111217;--ink:#eaeef2;--muted:#a7b0be;--brand:#ff7a00;--border:#1a1c22}
+    body{margin:0;background:linear-gradient(#0b0c10,#0e1016);color:var(--ink);font-family:sans-serif}
+    .wrap{max-width:800px;margin:0 auto;padding:20px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+    label{font-size:14px;color:var(--muted)}
+    input,textarea{width:100%;padding:10px;margin-top:8px;background:#0f1117;color:var(--ink);border:1px solid #1b1e27;border-radius:8px;font-size:16px}
+    button{padding:10px 16px;border:none;border-radius:8px;background:var(--brand);color:#1b1106;font-weight:600;cursor:pointer}
+    .out{background:#0f1117;border:1px dashed #21232d;border-radius:8px;padding:16px;min-height:150px;white-space:pre-wrap}
+    .laws{margin-top:10px;font-size:14px;color:var(--muted)}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid #2a2d3a;border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin-right:6px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .hl{background:rgba(255,122,0,.08);border:1px solid rgba(255,122,0,.12);padding:8px;border-radius:8px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div style="display:flex;align-items:center;gap:12px">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z" fill="#FF7A00"/></svg>
-        <div>
-          <h1 style="margin:0;font-size:18px">Dobby Legal Strategist</h1>
-          <div class="small muted">CourtListener (via AllOrigins) • Pidgin responses</div>
-        </div>
-      </div>
-      <div class="pill mono">Model: dobby‑mini‑unhinged‑plus‑llama‑3‑1‑8b</div>
-    </header>
-
-    <div class="grid">
-      <section class="card">
-        <label for="query">Describe your legal issue or paste keywords (e.g., "trademark parody" or a short statute)</label>
-        <textarea id="query" placeholder="e.g., I received a cease-and-desist for alleged trademark use in a parody meme account"></textarea>
-        <div class="row">
-          <button id="advise">Ask Dobby (Pidgin)</button>
-          <button id="reset" class="ghost">Reset</button>
-          <div style="margin-left:auto" id="status"><span class="muted">Idle</span></div>
-        </div>
-
-        <div style="margin-top:12px" class="out" id="output"><span class="muted">Dobby go answer here in pidgin…</span></div>
-        <div class="small muted" style="margin-top:8px">Notice: Using a public CORS proxy (AllOrigins) so the browser can request CourtListener results. See notes below.</div>
-      </section>
-
-      <aside class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>Matched Opinions</strong>
-          <span class="small muted">(from CourtListener)</span>
-        </div>
-        <div id="laws" class="laws"></div>
-        <div style="margin-top:12px" class="small muted">Source: CourtListener API (opinions). We fetch via a CORS proxy so the browser can call it directly. For production, run a serverless proxy to keep requests private.</div>
-      </aside>
+    <div class="card">
+      <h2>Dobby Legal Strategist (Pidgin)</h2>
+      <label for="query">Enter statute reference (e.g., ukpga/2008/9) or describe issue:</label>
+      <textarea id="query" placeholder="e.g., enter ukpga/2008/9"></textarea>
+      <button id="goBtn">Get Advice</button>
+      <div id="status" style="margin-top:10px;color:var(--muted)"></div>
     </div>
-
-    <div style="margin-top:12px" class="small muted">Tips: If you open this file directly (file://) the browser may block requests. Run a quick local server: <code>python -m http.server 8000</code> and open <code>http://localhost:8000</code>.</div>
+    <div class="card">
+      <h3>Statute Text</h3>
+      <div id="lawText" style="max-height:200px;overflow:auto;background:#14151c;padding:10px;border-radius:8px;"></div>
+    </div>
+    <div class="card">
+      <h3>Dobby Advice (Pidgin)</h3>
+      <div class="out" id="advice">Dobby go yan here...</div>
+    </div>
   </div>
 
   <script>
-    // -------- CONFIG --------
-    const FIREWORKS_API_KEY = 'fw_3ZYt5vRJztdY1fXajRko5YCt'; // inject at deploy time or replace locally
-    const FIREWORKS_CHAT_URL = 'https://api.fireworks.ai/inference/v1/chat/completions';
-    const FIREWORKS_MODEL = 'accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b';
+    const FIREWORKS_API_KEY = 'REPLACE_WITH_YOUR_KEY';
+    const FIREWORKS_URL = 'https://api.fireworks.ai/inference/v1/chat/completions';
+    const MODEL = 'accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b';
 
-    // CourtListener search endpoint (we will proxy this through AllOrigins to avoid CORS problems)
-    const COURTLISTENER_SEARCH = (q) => `https://www.courtlistener.com/api/rest/v3/opinions/?search=${encodeURIComponent(q)}&order_by=-date_modified&page_size=5`;
+    const queryEl = document.getElementById('query');
+    const goBtn = document.getElementById('goBtn');
+    const statusEl = document.getElementById('status');
+    const lawTextEl = document.getElementById('lawText');
+    const adviceEl = document.getElementById('advice');
 
-    // AllOrigins raw proxy URL
-    const ALLORIGINS_RAW = (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-
-    // UI refs
-    const els = {
-      query: document.getElementById('query'),
-      advise: document.getElementById('advise'),
-      reset: document.getElementById('reset'),
-      output: document.getElementById('output'),
-      laws: document.getElementById('laws'),
-      status: document.getElementById('status')
-    };
-
-    function setStatus(msg, busy=false){
-      els.status.innerHTML = busy ? `<span class="spinner"></span> ${msg}` : `<span class="muted">${msg}</span>`;
-      els.advise.disabled = busy;
+    function setStatus(msg){
+      statusEl.textContent = msg;
     }
 
-    function mdEscape(s=''){ return s.replace(/[<>]/g, c=> c=='<' ? '&lt;' : '&gt;'); }
-
-    function lawCard(it){
-      const title = it.case_name || 'Opinion';
-      const url = it.absolute_url ? `https://www.courtlistener.com${it.absolute_url}` : (it.url || '#');
-      const date = it.date_filed || it.date || '';
-      const excerpt = (it.excerpt || '').slice(0,400);
-      return `
-  <div class="law">
-    <div><a href="${url}" target="_blank" rel="noopener noreferrer"><strong>${mdEscape(title)}</strong></a></div>
-    <div class="small muted">${mdEscape(date)}</div>
-    ${excerpt ? `<div class="small" style="margin-top:6px">${mdEscape(excerpt)}${it.excerpt && it.excerpt.length>400?'…':''}</div>` : ''}
-  </div>`;
+    async function fetchLaw(id){
+      const url = `https://www.legislation.gov.uk/id/${id}/data.json`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Law not found');
+      const data = await res.json();
+      return data;
     }
 
-    async function fetchCourtListener(query){
-      const url = COURTLISTENER_SEARCH(query);
-      const proxy = ALLORIGINS_RAW(url);
-      const r = await fetch(proxy, {headers:{'Accept':'application/json'}});
-      if(!r.ok) throw new Error(`CourtListener fetch failed ${r.status}`);
-      const data = await r.json();
-      const results = data.results || data;
-      // Try to build small excerpts: some items include plain_text field
-      const mapped = (results || []).slice(0,5).map(it=>({
-        case_name: it.case_name || it.caseName || 'Opinion',
-        absolute_url: it.absolute_url || it.url,
-        date_filed: it.date_filed || it.date,
-        excerpt: (it.excerpt || it.snippet || '').slice(0,900)
-      }));
-      return mapped;
+    function extractLawText(data){
+      if(data.data && data.data.text && Array.isArray(data.data.text.content)){
+        return data.data.text.content.map(c => typeof c === 'string' ? c : '').slice(0,50).join('\n');
+      }
+      return JSON.stringify(data);
     }
 
-    function buildSystemPrompt(){
-      return `You be Dobby, AI legal strategist wey dey talk in Nigerian Pidgin.
-Rules:
-- Use professional lawyer-like pidgin tone.
-- Extract legal issues and controlling rules.
-- Cite provided sources when you fit.
-- Give practical step-by-step strategy and a short risk matrix.
-- No made-up citations beyond given materials.`;
-    }
+    async function askAI(statute, userInput){
+      const sys = {role:'system', content:
+        `You be Dobby, legal strategist wey dey talk pidgin English. Make you explain di law (wey we provide) and yan strategy for law matter. Talk like lawyer wey dey pidgin.`};
+      const user = {role:'user', content:
+        `Statute text:\n${statute}\n\nIssue: ${userInput}\n\nYarn advice in pidgin.`};
+      const body = {model:MODEL, messages:[sys,user], temperature:0.2, max_tokens:600};
 
-    function buildUserPrompt(userQuery, sources){
-      const srcText = sources.map((s,i)=>`Source ${i+1}: ${s.case_name || 'Opinion'} (${s.date_filed||''})
-Link: ${s.absolute_url?('https://www.courtlistener.com'+s.absolute_url):'(link)'}
-Excerpt:
-${s.excerpt||'(no excerpt)'}
----`).join('
-
-');
-      return `User Issue:
-${userQuery}
-
-Relevant Materials (CourtListener excerpts):
-${srcText}
-
-Task: Analyze di issue for di user using di materials, propose strategy (in pidgin), keep answer concise (<500 words).`;
-    }
-
-    async function askFireworks(messages){
-      const body = {model:FIREWORKS_MODEL,messages,temperature:0.2,max_tokens:800};
-      const r = await fetch(FIREWORKS_CHAT_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${FIREWORKS_API_KEY}`},body:JSON.stringify(body)});
-      if(!r.ok){const t = await r.text(); throw new Error(`Fireworks error ${r.status}: ${t}`)}
+      const r = await fetch(FIREWORKS_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${FIREWORKS_API_KEY}`},
+        body:JSON.stringify(body)
+      });
+      if(!r.ok) throw new Error('Fireworks API error: ' + r.status);
       const j = await r.json();
-      return j?.choices?.[0]?.message?.content || '';
+      return j.choices?.[0]?.message?.content || '';
     }
 
-    async function typeOut(el, text, speed=14){
-      el.innerHTML='';
-      const p = document.createElement('div'); p.style.whiteSpace='pre-wrap'; p.style.lineHeight='1.6'; el.appendChild(p);
-      for(const ch of text){ p.textContent += ch; await new Promise(r=>setTimeout(r, speed)); }
-    }
-
-    async function run(){
-      const q = els.query.value.trim();
-      if(!q) { els.query.focus(); return; }
-      setStatus('Searching CourtListener (via AllOrigins)...', true);
-      els.output.innerHTML = '';
-      els.laws.innerHTML = '';
-
-      let sources = [];
-      try{
-        sources = await fetchCourtListener(q);
-      }catch(err){
-        console.warn('CourtListener via proxy failed:', err);
-        // Continue with empty sources
-      }
-
-      els.laws.innerHTML = sources.length ? sources.map(lawCard).join('
-') : '<div class="small muted">No matching opinions found or proxy failed.</div>';
-
-      setStatus('Asking Dobby to reason (pidgin)...', true);
-      const messages = [ {role:'system',content:buildSystemPrompt()}, {role:'user',content:buildUserPrompt(q, sources.slice(0,3))} ];
-
-      try{
-        const answer = await askFireworks(messages);
-        await typeOut(els.output, answer, 12);
-        setStatus('Done', false);
-      }catch(e){
-        console.error(e);
-        els.output.innerHTML = `<div class='hl' style='color:#ffd6c2'>${mdEscape(e.message)}<div class='small muted' style='margin-top:6px'>Check your FIREWORKS_API_KEY, model name, or try again later.</div></div>`;
-        setStatus('Error', false);
+    async function typeWriter(text, el, speed=20){
+      el.textContent = '';
+      for(let ch of text){
+        el.textContent += ch;
+        await new Promise(r => setTimeout(r, speed));
       }
     }
 
-    els.advise.addEventListener('click', run);
-    els.reset.addEventListener('click', ()=>{els.query.value=''; els.output.innerHTML='<span class="muted">Dobby go answer here in pidgin…</span>'; els.laws.innerHTML=''; setStatus('Idle', false)});
-
-    // Keyboard shortcut
-    document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key === 'Enter') run(); });
+    goBtn.onclick = async ()=>{
+      const q = queryEl.value.trim();
+      if(!q) return;
+      setStatus('Fetching law...');
+      lawTextEl.textContent = '';
+      adviceEl.textContent = '';
+      try {
+        const data = await fetchLaw(q);
+        const txt = extractLawText(data);
+        lawTextEl.textContent = txt;
+        setStatus('Getting advice from Dobby...');
+        const reply = await askAI(txt, q);
+        setStatus('Done');
+        await typeWriter(reply, adviceEl);
+      } catch(e) {
+        setStatus(e.message);
+        adviceEl.textContent = '';
+      }
+    };
   </script>
 </body>
 </html>
