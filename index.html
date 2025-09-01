@@ -5,82 +5,107 @@
   <title>Dobby Legal Advisor – Nigeria Laws</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fafafa;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      align-items: flex-start;
+      min-height: 100vh;
+      color: #333;
     }
     .container {
-      width: 90%;
-      max-width: 700px;
+      width: 95%;
+      max-width: 800px;
+      margin: 40px auto;
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      padding: 30px;
     }
     h1 {
       color: #ff6600;
       text-align: center;
       margin-bottom: 20px;
+      font-size: 28px;
     }
     #userInput {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 10px;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      transition: border 0.2s;
+    }
+    #userInput:focus {
+      border-color: #ff6600;
+      outline: none;
     }
     button {
       background: #ff6600;
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
+      padding: 14px 20px;
+      border-radius: 12px;
       cursor: pointer;
       width: 100%;
       font-size: 16px;
+      font-weight: bold;
+      transition: background 0.2s;
     }
     button:hover {
       background: #e65c00;
     }
-    #response {
-      margin-top: 20px;
-      background: #f1f1f1;
-      padding: 15px;
-      border-radius: 8px;
+    .response-section {
+      margin-top: 25px;
+    }
+    .card {
+      background: #fdfdfd;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #ff6600;
+    }
+    .typing {
       white-space: pre-line;
       font-size: 15px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Dobby Legal Advisor 🇳🇬⚖️</h1>
+    <h1>Dobby Legal Advisor ⚖️🇳🇬</h1>
     <input id="userInput" type="text" placeholder="Ask your legal question (Nigeria laws only)">
     <button onclick="getAdvice()">Ask Dobby</button>
-    <div id="response"></div>
+
+    <div class="response-section" id="response"></div>
   </div>
 
   <script>
     const FIREWORKS_API_KEY = "fw_3ZYt5vRJztdY1fXajRko5YCt";
 
     async function fetchLawData(query) {
-      // Laws.Africa API search (Nigeria jurisdiction = NGA)
       const url = `https://api.laws.africa/v1/works/?q=${encodeURIComponent(query)}&jurisdiction=nga`;
-
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Law fetch failed");
         const data = await res.json();
-        return data.results?.length ? data.results[0].title + ": " + (data.results[0].frbr_uri || "") : "No law section found";
+        if (data.results?.length) {
+          return data.results[0].title + ": " + (data.results[0].frbr_uri || "");
+        } else {
+          return "No direct section found in Nigerian law.";
+        }
       } catch (err) {
-        console.error("Law fetch error:", err);
-        return "No law data available.";
+        console.warn("Law fetch error:", err);
+        return "Unable to fetch Nigerian law data.";
       }
     }
 
@@ -93,10 +118,11 @@
         },
         body: JSON.stringify({
           model: "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b",
-          prompt: `You be Nigerian lawyer wey sabi pidgin. User ask: "${userQuestion}". 
-Here na law wey I find: ${lawText}.
-Explain am for the user like real lawyer but talk only for Nigerian Pidgin.`,
-          max_tokens: 300,
+          prompt: `You are a Nigerian lawyer. The user asked: "${userQuestion}".
+Here is what the Nigerian law database returned: ${lawText}.
+First, give professional legal advice in clear Nigerian English (or Pidgin if natural).
+Then, summarize what the law itself states (based on the provided or fallback text).`,
+          max_tokens: 350,
           temperature: 0.7
         })
       });
@@ -106,22 +132,34 @@ Explain am for the user like real lawyer but talk only for Nigerian Pidgin.`,
 
     async function getAdvice() {
       const userInput = document.getElementById("userInput").value.trim();
-      if (!userInput) return alert("Abeg enter your question first.");
+      if (!userInput) return alert("Please enter your legal question.");
 
       const responseDiv = document.getElementById("response");
-      responseDiv.textContent = "Dobby dey reason your matter...";
+      responseDiv.innerHTML = `<div class="card"><h2>Loading...</h2><p>Please wait while Dobby checks Nigerian laws...</p></div>`;
 
       const lawText = await fetchLawData(userInput);
       const aiText = await fetchAIResponse(lawText, userInput);
 
+      // Build dual response
+      const responseHTML = `
+        <div class="card">
+          <h2>Professional Legal Advice</h2>
+          <div class="typing" id="advice"></div>
+        </div>
+        <div class="card">
+          <h2>What the Law Says</h2>
+          <p>${lawText}</p>
+        </div>
+      `;
+      responseDiv.innerHTML = responseHTML;
+
       // typing effect
-      responseDiv.textContent = "";
       let i = 0;
       function typeWriter() {
         if (i < aiText.length) {
-          responseDiv.textContent += aiText.charAt(i);
+          document.getElementById("advice").textContent += aiText.charAt(i);
           i++;
-          setTimeout(typeWriter, 30);
+          setTimeout(typeWriter, 25);
         }
       }
       typeWriter();
