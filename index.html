@@ -2,153 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dobby Legal Advisor ⚖️</title>
+  <title>Dobby Legal Advisor - Pidgin Mode</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      color: #222;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
+      background: #fdfdfd;
+      color: #333;
       padding: 20px;
-    }
-    .container {
-      background: #fff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 650px;
-      width: 100%;
     }
     h1 {
+      color: #e67e22;
       text-align: center;
-      color: #ff6600;
     }
-    textarea {
-      width: 100%;
-      height: 100px;
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      resize: none;
-      font-size: 15px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #ff6600;
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #e65c00;
+    .chat-box {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
     }
     .response {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #fafafa;
-      min-height: 80px;
-      white-space: pre-wrap;
-      font-size: 15px;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      border-left: 4px solid #e67e22;
     }
-    .section-title {
-      font-weight: bold;
-      margin-top: 10px;
-      color: #444;
+    button {
+      background: #e67e22;
+      border: none;
+      padding: 10px 18px;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Dobby Legal Advisor ⚖️</h1>
-    <textarea id="userInput" placeholder="Ask Dobby about Nigerian law..."></textarea>
-    <button onclick="getAdvice()">Ask Dobby</button>
-    <div class="response" id="response"></div>
+  <h1>Dobby Legal Advisor 🧡 (Pidgin)</h1>
+  <div class="chat-box">
+    <input type="text" id="lawInput" placeholder="Type law act id e.g. act/2003/child-rights-act" style="width:70%;padding:10px;">
+    <button onclick="getLaw()">Ask Dobby</button>
+    <div id="reply" class="response"></div>
   </div>
 
   <script>
-    const API_KEY = "fw_3ZYt5vRJztdY1fXajRko5YCt"; // your Fireworks API key
-    const responseDiv = document.getElementById("response");
-
-    async function fetchLawData(query) {
+    async function fetchLawAfrica(actId) {
+      const url = `https://api.laws.africa/v1/akn/ng/${actId}/`;
       try {
-        // Placeholder Nigeria law API (swap when official one available)
-        const url = `https://nigerialawapi.fly.dev/search?query=${encodeURIComponent(query)}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error("Nigeria law API no gree");
-        return await res.json();
-      } catch (err) {
-        console.warn("Fallback mode active:", err.message);
-        return { law: "No fit fetch Nigeria law directly. Make I use my fallback knowledge give you." };
-      }
-    }
-
-    async function getAdvice() {
-      const query = document.getElementById("userInput").value.trim();
-      if (!query) {
-        alert("Oya type your question first.");
-        return;
-      }
-      responseDiv.innerHTML = "Dobby dey think... 🤔";
-
-      const lawData = await fetchLawData(query);
-      let lawText = lawData.law || lawData.results?.[0]?.snippet || "I no see exact section for law.";
-      
-      const prompt = `
-      You be Nigerian lawyer wey sabi well well. 
-      The person ask: "${query}".
-      Na the law section wey I see: "${lawText}".
-      1. Explain wetin the law talk (use 📜 heading).
-      2. Give professional legal advice (use ⚖️ heading).
-      Write everything for Nigerian Pidgin, clear and respectful.
-      `;
-
-      try {
-        const res = await fetch("https://api.fireworks.ai/inference/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 500,
-          }),
-        });
-
+        if (!res.ok) throw new Error("Law no gree load");
         const data = await res.json();
-        const aiText = data.choices?.[0]?.message?.content || "Dobby no fit give answer now.";
-
-        typeEffect(aiText);
-      } catch (error) {
-        console.error(error);
-        responseDiv.innerHTML = "Error happen while fetching advice.";
+        return data.title ? data.title : "No info dey for this law section.";
+      } catch (err) {
+        return "Abeg, I no fit fetch dis law now.";
       }
     }
 
-    function typeEffect(text) {
-      responseDiv.innerHTML = "";
-      let i = 0;
-      const speed = 40;
-      function typing() {
-        if (i < text.length) {
-          responseDiv.innerHTML += text.charAt(i);
-          i++;
-          setTimeout(typing, speed);
-        }
-      }
-      typing();
+    async function getLaw() {
+      const lawId = document.getElementById("lawInput").value.trim();
+      const replyDiv = document.getElementById("reply");
+      replyDiv.innerHTML = "Hold on, I dey check law for you...";
+
+      const lawTitle = await fetchLawAfrica(lawId);
+
+      // Pidgin response formatting
+      const response = `
+        Omo! Na di law wey I find be this: <b>${lawTitle}</b><br><br>
+        If you wan sabi beta gist, abeg always talk to lawyer wey sabi. 
+        I just dey guide you small-small based on wetin constitution tok.
+      `;
+      replyDiv.innerHTML = response;
     }
   </script>
 </body>
