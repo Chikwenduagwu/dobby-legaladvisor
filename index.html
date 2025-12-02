@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLYDIRECT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding-top: 100px;
+        }
+
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fff 0%, #fff 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .hexagon {
+            margin-bottom: 1.5em;
+            overflow: hidden;
+            position: relative;
+            width: 15em;
+            height: 15em;
+        }
+
+        .hexagon__group {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hexagon__group:nth-child(odd) {
+            transform: rotate(30deg);
+        }
+
+        .hexagon__sector {
+            animation-name: moveOut1;
+            top: calc(50% - 0.1em);
+            left: calc(50% - 0.1em);
+            position: absolute;
+            width: 0.2em;
+            height: 0.2em;
+            animation-duration: 8s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        .hexagon__sector:before,
+        .hexagon__sector:after {
+            animation-duration: 8s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            animation-name: ripple;
+            background: linear-gradient(135deg, #0000ff, #00B2FF);
+            border-radius: 0.1em;
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0.2em;
+            height: 0.2em;
+            transform-origin: 0.1em 0.1em;
+        }
+
+        .hexagon__sector:before {
+            transform: rotate(-30deg);
+        }
+
+        .hexagon__sector:after {
+            transform: rotate(-150deg);
+        }
+
+        .hexagon__sector:nth-child(2) { animation-name: moveOut2; }
+        .hexagon__sector:nth-child(3) { animation-name: moveOut3; }
+        .hexagon__sector:nth-child(4) { animation-name: moveOut4; }
+        .hexagon__sector:nth-child(5) { animation-name: moveOut5; }
+        .hexagon__sector:nth-child(6) { animation-name: moveOut6; }
+
+        .hexagon__group:nth-child(2) .hexagon__sector,
+        .hexagon__group:nth-child(2) .hexagon__sector:before,
+        .hexagon__group:nth-child(2) .hexagon__sector:after {
+            animation-delay: calc(8s * 0 / 6);
+        }
+
+        .hexagon__group:nth-child(3) .hexagon__sector,
+        .hexagon__group:nth-child(3) .hexagon__sector:before,
+        .hexagon__group:nth-child(3) .hexagon__sector:after {
+            animation-delay: calc(8s * -1 / 6);
+        }
+
+        .hexagon__group:nth-child(4) .hexagon__sector,
+        .hexagon__group:nth-child(4) .hexagon__sector:before,
+        .hexagon__group:nth-child(4) .hexagon__sector:after {
+            animation-delay: calc(8s * -2 / 6);
+        }
+
+        .hexagon__group:nth-child(5) .hexagon__sector,
+        .hexagon__group:nth-child(5) .hexagon__sector:before,
+        .hexagon__group:nth-child(5) .hexagon__sector:after {
+            animation-delay: calc(8s * -3 / 6);
+        }
+
+        .hexagon__group:nth-child(6) .hexagon__sector,
+        .hexagon__group:nth-child(6) .hexagon__sector:before,
+        .hexagon__group:nth-child(6) .hexagon__sector:after {
+            animation-delay: calc(8s * -4 / 6);
+        }
+
+        @keyframes moveOut1 {
+            from { transform: rotate(0deg) translateY(0) scale(0); }
+            3% { transform: rotate(0deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(0deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(0deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes moveOut2 {
+            from { transform: rotate(60deg) translateY(0) scale(0); }
+            3% { transform: rotate(60deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(60deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(60deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes moveOut3 {
+            from { transform: rotate(120deg) translateY(0) scale(0); }
+            3% { transform: rotate(120deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(120deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(120deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes moveOut4 {
+            from { transform: rotate(180deg) translateY(0) scale(0); }
+            3% { transform: rotate(180deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(180deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(180deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes moveOut5 {
+            from { transform: rotate(240deg) translateY(0) scale(0); }
+            3% { transform: rotate(240deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(240deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(240deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes moveOut6 {
+            from { transform: rotate(300deg) translateY(0) scale(0); }
+            3% { transform: rotate(300deg) translateY(0.2em) scale(1); }
+            97% { transform: rotate(300deg) translateY(7.3em) scale(1); }
+            to { transform: rotate(300deg) translateY(7.5em) scale(0); }
+        }
+
+        @keyframes ripple {
+            from, to { width: 0.2em; }
+            33% { width: 2.4em; }
+        }
+
+        .preloader-text {
+            font-family: 'Comfortaa', sans-serif;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            background-color: transparent;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 94, 0, 0.1);
+        }
+
+        nav.scrolled {
+            padding: 15px 50px;
+            box-shadow: 0 5px 30px rgba(255, 94, 0, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            gap: 10px;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #0000ff, #000);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            align-items: center;
+            margin: 0;
+        }
+
+        .nav-links li {
+            list-style: none;
+        }
+
+        .wallet-btn {
+            padding: 12px 24px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', monospace;
+            position: relative;
+        }
+
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .wallet-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: rgba(20, 20, 20, 0.98);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 200px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .wallet-dropdown.show {
+            display: block;
+        }
+
+        .wallet-info-item {
+            padding: 10px;
+            color: #fff;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .wallet-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .disconnect-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .disconnect-btn:hover {
+            background: #dc2626;
+        }
+
+
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+            text-align: center;
+        }
+
+        .badge-info {
+            background: #000000;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 20px auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .token-selector {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .token-selector:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .token-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .token-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .chain-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .token-info {
+            flex: 1;
+        }
+
+        .token-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 2px;
+        }
+
+        .token-chain {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .balance-display {
+            margin-top: 8px;
+        }
+
+        .balance-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .swap-arrow {
+            display: flex;
+            justify-content: center;
+            margin: -6px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .swap-arrow-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: white;
+            border: 3px solid #f7fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .swap-arrow-btn:hover {
+            transform: rotate(180deg);
+            background: #f7fafc;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .amount-input-wrapper {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .amount-input-wrapper:focus-within {
+            background: #ffffff;
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .amount-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 28px;
+            font-weight: 700;
+            color: black;
+            outline: none;
+        }
+
+        .amount-input::placeholder {
+            color: #cbd5e0;
+        }
+
+        .usd-value {
+            font-size: 14px;
+            color: black;
+            margin-top: 8px;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .quick-amount-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-amount-btn:hover {
+            border-color: #000000;
+            color: #000000;
+            background: #f3f4f6;
+        }
+
+        .address-input {
+            width: 100%;
+            max-width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            background: #f9fafb;
+            word-break: break-all;
+        }
+
+        .address-input:focus {
+            outline: none;
+            border-color: #000000;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+            background: #111827;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-warning {
+            background: #000000;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+            width: 400px;
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .toast-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-info {
+            border-left: 4px solid #111827;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .toast-message {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .toast-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .toast-link:hover {
+            text-decoration: underline;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7c3aed;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: transparent;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .recent-tx {
+            margin-top: 20px;
+        }
+
+        .tx-item {
+            background: #f7fafc;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tx-status {
+            font-size: 12px;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .tx-amount {
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .network-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1200;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 430px;
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 20px 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-close:hover {
+            color: #111827;
+        }
+
+        .modal-body {
+            padding: 14px 20px 18px 20px;
+            overflow-y: auto;
+        }
+
+        .token-search-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .token-search-input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .chain-filter-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chain-chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chain-chip.active {
+            background: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        .asset-list {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .asset-item {
+            width: 100%;
+            border: none;
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .asset-item:hover {
+            background: #f3f4f6;
+        }
+
+        .asset-symbol {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .asset-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+
+        .asset-sub {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .asset-chain {
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        .asset-min {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .progress-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .step-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            border: 2px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            background: #ffffff;
+        }
+
+        .step-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .step-desc {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .step-status {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+
+        .step-active .step-icon {
+            border-color: #000000;
+            color: #000000;
+        }
+
+        .step-active .step-status {
+            color: #000000;
+        }
+
+        .step-completed .step-icon {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .step-completed .step-status {
+            color: #10b981;
+        }
+
+        .step-error .step-icon {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .step-error .step-status {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .wallet-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: 20px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .amount-input {
+                font-size: 24px;
+            }
+
+            .btn-primary {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            .toast {
+                width: calc(100% - 32px);
+                max-width: calc(100vw - 32px);
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wallet-dropdown {
+                right: auto;
+                left: 0;
+            }
+
+            .modal-card {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="hexagon" role="img" aria-label="Animated hexagonal ripples">
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+            <div class="hexagon__group">
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+                <div class="hexagon__sector"></div>
+            </div>
+        </div>
+        <p class="preloader-text">Loading Bridge...</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-link">
+                <svg class="logo-svg" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0000ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#00B2FF;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
+                    <polygon points="20,8 32,16 32,24 20,32 8,24 8,16" fill="url(#logoGradient)" opacity="0.3"/>
+                    <circle cx="20" cy="20" r="3" fill="url(#logoGradient)"/>
+                </svg>
+                <span class="logo-text">POLYDIRECT</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li style="position: relative;">
+                    <button class="wallet-btn" id="walletBtn" onclick="handleWalletButtonClick(event)">
+                        Connect Wallet
+                    </button>
+                    <div class="wallet-dropdown" id="walletDropdown">
+                        <div class="wallet-info-item">
+                            <strong>Address:</strong><br>
+                            <span id="dropdownAddress" style="font-size: 11px; word-break: break-all;">Not connected</span>
+                        </div>
+                        <div class="wallet-info-item">
+                            <strong>Network:</strong><br>
+                            <span id="dropdownNetwork">-</span>
+                        </div>
+                        <button class="disconnect-btn" onclick="disconnectWallet()">
+                            Disconnect
+                        </button>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <div id="toastContainer"></div>
+
+    <div class="container">
+        <h1 class="section-title">Bridge</h1>
+
+        <center>
+            <div class="badge-info">
+                <span>Best Rates on [USDC] Base → Polymarket</span>
+            </div>
+        </center>
+
+        <div id="networkWarning" class="network-warning hidden">
+            <span>⚠️</span>
+            <div style="flex: 1;">Wrong network detected. Please switch to Base.</div>
+        </div>
+
+        <div id="switchNetworkSection" class="hidden">
+            <button class="btn-primary btn-warning" onclick="switchToBase()">
+                ⚠️ Switch to Base Network
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="input-section">
+                <span class="input-label">From</span>
+                <div class="token-selector" onclick="openTokenSelectorModal()">
+                    <div class="token-header">
+                        <div class="token-icon">
+                            <img id="fromTokenLogo" src="img/icons/1763600124045.png" width="30px" height="30px" onerror="this.style.display='none'"/>
+                            <div class="chain-badge">
+                                <img id="fromChainLogo" src="img/icons/1763600124025.jpeg" width="20px" height="20px" onerror="this.style.display='none'"/>
+                            </div>
+                        </div>
+                        <div class="token-info">
+                            <div class="token-name" id="fromTokenName">USDC</div>
+                            <div class="token-chain" id="fromTokenChain">Base</div>
+                            <div class="balance-display">
+                                <div class="balance-amount" id="usdcBalance">0.00 USDC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="swap-arrow">
+                <div class="swap-arrow-btn">↓</div>
+            </div>
+
+            <div class="input-section">
+                <span class="input-label">To</span>
+                <div class="token-selector">
+                    <div class="token-header">
+                        <div class="token-icon">
+                            <img src="img/icons/1763600124031.jpeg" width="30px" height="30px" onerror="this.style.display='none'"/>
+                            <div class="chain-badge">
+                                <img src="img/icons/1763600124039.png" width="20px" height="20px" onerror="this.style.display='none'"/>
+                            </div>
+                        </div>
+                        <div class="token-info">
+                            <div class="token-name">Polymarket</div>
+                            <div class="token-chain">Polygon</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <span class="input-label">Amount</span>
+                <div class="amount-input-wrapper">
+                    <input 
+                        type="number" 
+                        class="amount-input" 
+                        id="amount" 
+                        placeholder="0"
+                        min="2.5"
+                        step="0.01"
+                        oninput="updateUSDValue()"
+                    >
+                    <span id="amountUnit" style="font-size: 18px; font-weight: 700; color: #718096;">USDC</span>
+                </div>
+                <div class="usd-value" id="usdValue">$0.00 USD</div>
+                <div class="quick-amounts">
+                    <button class="quick-amount-btn" onclick="setAmount(10)">$10</button>
+                    <button class="quick-amount-btn" onclick="setAmount(25)">$25</button>
+                    <button class="quick-amount-btn" onclick="setAmount(50)">$50</button>
+                    <button class="quick-amount-btn" onclick="setMaxAmount()">MAX</button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <span class="input-label">Polymarket Wallet Address</span>
+                <input 
+                    type="text" 
+                    class="address-input" 
+                    id="polymarketAddress" 
+                    placeholder="0x..."
+                    spellcheck="false"
+                >
+            </div>
+
+            <button class="btn-primary" id="bridgeBtn" onclick="initiateBridge()">
+                Bridge to Polymarket
+            </button>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Estimated Time</div>
+                    <div class="stat-value">~2-5 min</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Network Fee</div>
+                    <div class="stat-value" id="gasFee">~$0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-tx" id="recentTx" style="display: none;">
+            <span class="input-label">Recent Transactions</span>
+            <div id="txList"></div>
+        </div>
+    </div>
+    
+    <div id="tokenSelectorModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Select source asset</div>
+                    <div class="modal-subtitle">Search across supported chains and tokens.</div>
+                </div>
+                <button class="modal-close" onclick="closeTokenSelectorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input 
+                    id="tokenSearchInput"
+                    type="text" 
+                    class="token-search-input" 
+                    placeholder="Search chains or tokens..." 
+                    oninput="handleTokenSearch(this)"
+                >
+                <div id="chainFilterList" class="chain-filter-list"></div>
+                <div id="assetList" class="asset-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bridgeProgressModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Bridge to Polymarket</div>
+                    <div class="modal-subtitle">Follow each step and confirm in your wallet.</div>
+                </div>
+                <button class="modal-close" onclick="closeBridgeProgressModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="progress-steps">
+                    <div class="progress-step" id="step-wallet">
+                        <div class="step-main">
+                            <div class="step-icon" id="step-wallet-icon">1</div>
+                            <div>
+                                <div class="step-title">Connect wallet</div>
+                                <div class="step-desc">We need your wallet to start the bridge.</div>
+                            </div>
+                        </div>
+                        <div class="step-status" id="step-wallet-status"></div>
+                    </div>
+                    <div class="progress-step" id="step-network">
+                        <div class="step-main">
+                            <div class="step-icon" id="step-network-icon">2</div>
+                            <div>
+                                <div class="step-title">Switch to Base</div>
+                                <div class="step-desc">Bridge currently executes on Base USDC.</div>
+                            </div>
+                        </div>
+                        <div class="step-status" id="step-network-status"></div>
+                    </div>
+                    <div class="progress-step" id="step-approve">
+                        <div class="step-main">
+                            <div class="step-icon" id="step-approve-icon">3</div>
+                            <div>
+                                <div class="step-title">Approve & send</div>
+                                <div class="step-desc">Approve and broadcast the transfer.</div>
+                            </div>
+                        </div>
+                        <div class="step-status" id="step-approve-status"></div>
+                    </div>
+                    <div class="progress-step" id="step-complete">
+                        <div class="step-main">
+                            <div class="step-icon" id="step-complete-icon">4</div>
+                            <div>
+                                <div class="step-title">Bridge complete</div>
+                                <div class="step-desc">Funds are on their way to Polymarket.</div>
+                            </div>
+                        </div>
+                        <div class="step-status" id="step-complete-status"></div>
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #6b7280; margin-top: 12px;" id="bridgeProgressNote">
+                    Currently, this UI only executes bridges from USDC on Base. Other supported assets are shown for discovery.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="assets-config.js"></script>
+    <script>
+        const BASE_CHAIN_ID = '0x2105';
+        const BASE_USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+        const POLYMARKET_BRIDGE_API = 'https://bridge.polymarket.com/deposit';
+        const MIN_AMOUNT = 2.5;
+
+        const SUPPORTED_CONFIG = window.POLYDIRECT_SUPPORTED_CONFIG || { supportedAssets: [], note: '' };
+        const SUPPORTED_ASSETS = SUPPORTED_CONFIG.supportedAssets || [];
+        const BRIDGE_STEPS = ['wallet', 'network', 'approve', 'complete'];
+        const BRIDGE_STEP_LABELS = { wallet: '1', network: '2', approve: '3', complete: '4' };
+
+        function toHexChainId(chainId) {
+            try {
+                if (!chainId) return null;
+                if (typeof chainId === 'string' && chainId.startsWith('0x')) {
+                    return chainId;
+                }
+                const value = BigInt(String(chainId));
+                return '0x' + value.toString(16);
+            } catch (e) {
+                console.error('Invalid chainId for hex conversion:', chainId, e);
+                return null;
+            }
+        }
+
+        function parseAmountToUnits(amountInput, decimals) {
+            const dec = (typeof decimals === 'number' && decimals >= 0) ? decimals : 18;
+            const raw = String(amountInput || '').trim();
+            if (!raw) return 0n;
+            if (!/^\d+(\.\d+)?$/.test(raw)) {
+                throw new Error('Invalid amount format');
+            }
+            const parts = raw.split('.');
+            const whole = parts[0];
+            let fraction = parts[1] || '';
+            if (fraction.length > dec) {
+                fraction = fraction.slice(0, dec);
+            }
+            while (fraction.length < dec) {
+                fraction += '0';
+            }
+            const combined = whole + fraction;
+            return BigInt(combined || '0');
+        }
+
+        const TOKEN_LOGO_BASE_URL = 'https://via.placeholder.com/32/000000/FFFFFF?text=';
+        const CHAIN_LOGO_BASE_URL = 'https://via.placeholder.com/20/000000/FFFFFF?text=';
+
+        function getTokenLogoUrl(token) {
+            const symbol = (token && token.symbol ? token.symbol : (token && token.name ? token.name : 'TOK'));
+            const label = String(symbol).toUpperCase().slice(0, 4) || 'TOK';
+            return TOKEN_LOGO_BASE_URL + encodeURIComponent(label);
+        }
+
+        function getChainLogoUrl(chainName, chainId) {
+            const base = chainName || ('Chain ' + (chainId || '')); 
+            const firstWord = base.split(' ')[0] || 'NET';
+            const label = firstWord.toUpperCase().slice(0, 4) || 'NET';
+            return CHAIN_LOGO_BASE_URL + encodeURIComponent(label);
+        }
+
+        let userAddress = null;
+        let currentChainId = null;
+        let usdcBalance = 0;
+        let recentTransactions = [];
+        let dropdownOpen = false;
+        let selectedAsset = null;
+        let selectedChainIdFilter = null;
+        let currentAssetRenderList = [];
+
+        function initializeAssetSelector() {
+            const assetListEl = document.getElementById('assetList');
+            const chainFilterEl = document.getElementById('chainFilterList');
+
+            if (!assetListEl || !chainFilterEl || !Array.isArray(SUPPORTED_ASSETS) || SUPPORTED_ASSETS.length === 0) {
+                return;
+            }
+
+            assetListEl.addEventListener('click', handleAssetClick);
+            buildChainFilters();
+            renderAssetList('');
+
+            const baseUsdc = SUPPORTED_ASSETS.find(function (asset) {
+                return asset &&
+                    asset.chainId === '8453' &&
+                    asset.token &&
+                    asset.token.symbol === 'USDC' &&
+                    asset.token.address &&
+                    asset.token.address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase();
+            });
+
+            setSelectedAsset(baseUsdc || SUPPORTED_ASSETS[0]);
+        }
+
+        function buildChainFilters() {
+            const chainFilterEl = document.getElementById('chainFilterList');
+            if (!chainFilterEl) return;
+
+            const seen = {};
+            const chains = [];
+
+            (SUPPORTED_ASSETS || []).forEach(function (asset) {
+                if (!asset || !asset.chainId) return;
+                if (seen[asset.chainId]) return;
+                seen[asset.chainId] = true;
+                chains.push({ id: String(asset.chainId), name: asset.chainName || ('Chain ' + asset.chainId) });
+            });
+
+            chains.sort(function (a, b) {
+                return a.name.localeCompare(b.name);
+            });
+
+            chainFilterEl.innerHTML = '';
+
+            const allBtn = document.createElement('button');
+            allBtn.type = 'button';
+            allBtn.className = 'chain-chip' + (selectedChainIdFilter ? '' : ' active');
+            allBtn.dataset.chainId = '';
+            allBtn.textContent = 'All chains';
+            chainFilterEl.appendChild(allBtn);
+
+            chains.forEach(function (chain) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'chain-chip' + (selectedChainIdFilter === chain.id ? ' active' : '');
+                btn.dataset.chainId = chain.id;
+                btn.textContent = chain.name;
+                chainFilterEl.appendChild(btn);
+            });
+
+            chainFilterEl.addEventListener('click', function (event) {
+                const chip = event.target.closest ? event.target.closest('.chain-chip') : null;
+                if (!chip) return;
+                const chainId = chip.dataset.chainId || '';
+                selectedChainIdFilter = chainId || null;
+
+                Array.prototype.forEach.call(chainFilterEl.querySelectorAll('.chain-chip'), function (el) {
+                    const id = el.dataset.chainId || '';
+                    const isAll = !id;
+                    el.classList.toggle('active', (isAll && !selectedChainIdFilter) || (!isAll && id === selectedChainIdFilter));
+                });
+
+                const searchInput = document.getElementById('tokenSearchInput');
+                const term = searchInput && searchInput.value ? searchInput.value : '';
+                renderAssetList(term);
+            });
+        }
+
+        function renderAssetList(searchTerm) {
+            const listEl = document.getElementById('assetList');
+            if (!listEl) return;
+
+            const term = (searchTerm || '').toLowerCase();
+            const assets = (SUPPORTED_ASSETS || []).filter(function (asset) {
+                if (!asset) return false;
+                if (selectedChainIdFilter && String(asset.chainId) !== String(selectedChainIdFilter)) return false;
+                if (!term) return true;
+                const token = asset.token || {};
+                const symbol = (token.symbol || '').toLowerCase();
+                const name = (token.name || '').toLowerCase();
+                const chainName = (asset.chainName || '').toLowerCase();
+                return symbol.indexOf(term) !== -1 || name.indexOf(term) !== -1 || chainName.indexOf(term) !== -1;
+            });
+
+            currentAssetRenderList = assets;
+
+            listEl.innerHTML = assets.map(function (asset, index) {
+                const token = asset.token || {};
+                const symbol = token.symbol || 'Token';
+                const name = token.name || symbol;
+                const chainName = asset.chainName || ('Chain ' + asset.chainId);
+                const min = typeof asset.minCheckoutUsd === 'number' ? asset.minCheckoutUsd : null;
+                const logoUrl = getTokenLogoUrl(token);
+
+                return (
+                    '<button type="button" class="asset-item" data-asset-index="' + index + '">' +
+                        '<div style="display:flex;align-items:center;gap:8px;">' +
+                            '<img class="asset-logo" src="' + logoUrl + '" alt="' + symbol + ' logo" />' +
+                            '<div>' +
+                                '<div class="asset-symbol">' + symbol + '</div>' +
+                                '<div class="asset-sub">' + name + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="text-align:right;">' +
+                            '<div class="asset-chain">' + chainName + '</div>' +
+                            (min !== null ? '<div class="asset-min">Min: $' + min + ' USD</div>' : '') +
+                        '</div>' +
+                    '</button>'
+                );
+            }).join('');
+        }
+
+        function handleAssetClick(event) {
+            if (!event || !event.target) return;
+            const item = event.target.closest ? event.target.closest('.asset-item') : null;
+            if (!item) return;
+            const index = parseInt(item.getAttribute('data-asset-index'), 10);
+            if (isNaN(index) || !currentAssetRenderList[index]) return;
+            const asset = currentAssetRenderList[index];
+            setSelectedAsset(asset);
+            closeTokenSelectorModal();
+        }
+
+        function setSelectedAsset(asset) {
+            if (!asset || !asset.token) return;
+            selectedAsset = asset;
+            const token = asset.token;
+            const nameEl = document.getElementById('fromTokenName');
+            const chainEl = document.getElementById('fromTokenChain');
+            const amountUnitEl = document.getElementById('amountUnit');
+            const tokenLogoEl = document.getElementById('fromTokenLogo');
+            const chainLogoEl = document.getElementById('fromChainLogo');
+
+            const symbol = token.symbol || token.name || 'Token';
+            const chainName = asset.chainName || ('Chain ' + asset.chainId);
+
+            if (nameEl) nameEl.textContent = symbol;
+            if (chainEl) chainEl.textContent = chainName;
+            if (amountUnitEl) amountUnitEl.textContent = symbol;
+
+            const tokenLogoUrl = getTokenLogoUrl(token);
+            const chainLogoUrl = getChainLogoUrl(chainName, asset.chainId);
+
+            if (tokenLogoEl) {
+                tokenLogoEl.style.display = 'block';
+                tokenLogoEl.src = tokenLogoUrl;
+            }
+            if (chainLogoEl) {
+                chainLogoEl.style.display = 'block';
+                chainLogoEl.src = chainLogoUrl;
+            }
+        }
+
+        function getCurrentMinAmount() {
+            if (selectedAsset && typeof selectedAsset.minCheckoutUsd === 'number') {
+                return selectedAsset.minCheckoutUsd;
+            }
+            return MIN_AMOUNT;
+        }
+
+        function openTokenSelectorModal() {
+            const modal = document.getElementById('tokenSelectorModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            const input = document.getElementById('tokenSearchInput');
+            if (input) {
+                input.value = '';
+            }
+            renderAssetList('');
+        }
+
+        function closeTokenSelectorModal() {
+            const modal = document.getElementById('tokenSelectorModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+        }
+
+        function handleTokenSearch(inputEl) {
+            const term = inputEl && inputEl.value ? inputEl.value : '';
+            renderAssetList(term);
+        }
+
+        function openBridgeProgressModal() {
+            const modal = document.getElementById('bridgeProgressModal');
+            if (!modal) return;
+            resetBridgeSteps();
+            modal.classList.remove('hidden');
+        }
+
+        function closeBridgeProgressModal() {
+            const modal = document.getElementById('bridgeProgressModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+        }
+
+        function resetBridgeSteps() {
+            BRIDGE_STEPS.forEach(function (step) {
+                setBridgeStepState(step, 'idle', '', BRIDGE_STEP_LABELS[step]);
+            });
+        }
+
+        function setBridgeStepState(step, state, message, iconText) {
+            const row = document.getElementById('step-' + step);
+            const iconEl = document.getElementById('step-' + step + '-icon');
+            const statusEl = document.getElementById('step-' + step + '-status');
+            if (!row || !iconEl || !statusEl) return;
+
+            row.classList.remove('step-active', 'step-completed', 'step-error');
+            if (state === 'active') {
+                row.classList.add('step-active');
+            } else if (state === 'completed') {
+                row.classList.add('step-completed');
+            } else if (state === 'error') {
+                row.classList.add('step-error');
+            }
+
+            statusEl.textContent = message || '';
+            iconEl.textContent = iconText || BRIDGE_STEP_LABELS[step] || '';
+        }
+
+        window.addEventListener('load', async () => {
+            console.log('Page loaded, checking for wallet...');
+            
+            initializeAssetSelector();
+            
+            // Hide preloader after minimum display time
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('hidden');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }, 1500);
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('Ethereum provider found');
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    console.log('Existing accounts:', accounts);
+                    if (accounts.length > 0) {
+                        await handleAccountsChanged(accounts);
+                    }
+                    window.ethereum.on('accountsChanged', handleAccountsChanged);
+                    window.ethereum.on('chainChanged', async (chainId) => {
+                        try {
+                            console.log('Chain changed:', chainId);
+                            currentChainId = chainId;
+                            updateNetworkDisplay();
+                            await estimateGasFee();
+                            if (currentChainId === BASE_CHAIN_ID && userAddress) {
+                                await getUSDCBalance();
+                            }
+                        } catch (err) {
+                            console.error('Error handling chainChanged:', err);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error checking accounts:', error);
+                }
+            } else {
+                console.log('No ethereum provider found');
+            }
+            loadRecentTransactions();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('walletDropdown');
+            const walletBtn = document.getElementById('walletBtn');
+            if (dropdownOpen && !dropdown.contains(e.target) && !walletBtn.contains(e.target)) {
+                dropdown.classList.remove('show');
+                dropdownOpen = false;
+            }
+        });
+
+        async function handleAccountsChanged(accounts) {
+            console.log('Accounts changed:', accounts);
+            if (accounts.length === 0) {
+                disconnectWallet();
+            } else {
+                userAddress = accounts[0];
+                console.log('Setting user address:', userAddress);
+                try {
+                    const provider = window.ethereum || window.web3?.currentProvider;
+                    currentChainId = await provider.request({ method: 'eth_chainId' });
+                    console.log('Chain ID:', currentChainId);
+                    updateWalletUI();
+                    await getUSDCBalance();
+                    estimateGasFee();
+                } catch (error) {
+                    console.error('Error in handleAccountsChanged:', error);
+                }
+            }
+        }
+
+        function handleWalletButtonClick(event) {
+            event.stopPropagation();
+            console.log('Wallet button clicked, userAddress:', userAddress);
+            if (!userAddress) {
+                console.log('No user address, connecting wallet...');
+                connectWallet();
+            } else {
+                console.log('User connected, toggling dropdown');
+                toggleWalletMenu();
+            }
+        }
+
+        function toggleWalletMenu() {
+            const dropdown = document.getElementById('walletDropdown');
+            dropdownOpen = !dropdownOpen;
+            if (dropdownOpen) {
+                dropdown.classList.add('show');
+            } else {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        async function connectWallet() {
+            console.log('connectWallet called');
+            let provider = null;
+            
+            if (typeof window.ethereum !== 'undefined') {
+                provider = window.ethereum;
+                console.log('Using window.ethereum');
+            } else if (typeof window.web3 !== 'undefined') {
+                provider = window.web3.currentProvider;
+                console.log('Using window.web3.currentProvider');
+            }
+            
+            if (!provider) {
+                console.error('No provider found');
+                showToast('error', 'Wallet Not Found', 'Please install MetaMask, Rabby, or another Web3 wallet extension.');
+                return;
+            }
+
+            try {
+                console.log('Requesting accounts...');
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                console.log('Accounts received:', accounts);
+                
+                userAddress = accounts[0];
+                currentChainId = await provider.request({ method: 'eth_chainId' });
+                console.log('Connected:', userAddress, 'Chain:', currentChainId);
+                
+                updateWalletUI();
+                await getUSDCBalance();
+                await estimateGasFee();
+                showToast('success', 'Wallet Connected', `Connected to ${formatAddress(userAddress)}`);
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                
+                if (error.code === 4001) {
+                    showToast('error', 'Connection Rejected', 'You rejected the connection request.');
+                } else if (error.code === -32002) {
+                    showToast('info', 'Request Pending', 'Please check your wallet for a pending connection request.');
+                } else {
+                    showToast('error', 'Connection Failed', error.message || 'Could not connect to your wallet. Please try again.');
+                }
+            }
+        }
+
+        function disconnectWallet() {
+            userAddress = null;
+            currentChainId = null;
+            usdcBalance = 0;
+            updateWalletUI();
+            document.getElementById('walletDropdown').classList.remove('show');
+            dropdownOpen = false;
+            showToast('info', 'Disconnected', 'Wallet disconnected successfully.');
+        }
+
+        function updateWalletUI() {
+            const walletBtn = document.getElementById('walletBtn');
+            const dropdownAddress = document.getElementById('dropdownAddress');
+            const dropdownNetwork = document.getElementById('dropdownNetwork');
+            
+            console.log('Updating wallet UI, userAddress:', userAddress);
+            
+            if (userAddress) {
+                walletBtn.textContent = formatAddress(userAddress);
+                walletBtn.style.background = '#000000';
+                walletBtn.style.color = '#ffffff';
+                dropdownAddress.textContent = userAddress;
+                dropdownNetwork.textContent = currentChainId === BASE_CHAIN_ID ? 'Base Mainnet ✓' : 'Wrong Network ⚠️';
+                dropdownNetwork.style.color = currentChainId === BASE_CHAIN_ID ? '#10b981' : '#ef4444';
+                updateNetworkDisplay();
+            } else {
+                walletBtn.textContent = 'Connect Wallet';
+                walletBtn.style.background = '#000000';
+                walletBtn.style.color = '#ffffff';
+                dropdownAddress.textContent = 'Not connected';
+                dropdownNetwork.textContent = '-';
+                dropdownNetwork.style.color = '#718096';
+                document.getElementById('usdcBalance').textContent = '0.00 USDC';
+            }
+        }
+
+        async function getUSDCBalance() {
+            try {
+                const provider = window.ethereum || window.web3?.currentProvider;
+                if (!provider || !userAddress) {
+                    console.log('No provider or user address for balance check');
+                    return;
+                }
+                
+                console.log('Getting USDC balance for:', userAddress);
+                const balanceData = `0x70a08231${userAddress.slice(2).padStart(64, '0')}`;
+                
+                const result = await provider.request({
+                    method: 'eth_call',
+                    params: [{
+                        to: BASE_USDC_ADDRESS,
+                        data: balanceData
+                    }, 'latest']
+                });
+
+                console.log('Balance result:', result);
+                usdcBalance = parseInt(result, 16) / 1e6;
+                console.log('USDC Balance:', usdcBalance);
+                document.getElementById('usdcBalance').textContent = `${usdcBalance.toFixed(2)} USDC`;
+            } catch (error) {
+                console.error('Error getting USDC balance:', error);
+                document.getElementById('usdcBalance').textContent = '0.00 USDC';
+            }
+        }
+
+        async function refreshBalance() {
+            showToast('info', 'Refreshing', 'Updating your balance...');
+            await getUSDCBalance();
+            showToast('success', 'Balance Updated', `Current balance: ${usdcBalance.toFixed(2)} USDC`);
+        }
+
+        async function switchToBase() {
+            try {
+                const provider = window.ethereum || window.web3?.currentProvider;
+                if (!provider) return;
+                
+                await provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: BASE_CHAIN_ID }],
+                });
+                currentChainId = BASE_CHAIN_ID;
+                updateNetworkDisplay();
+                showToast('success', 'Network Switched', 'Successfully switched to Base network.');
+            } catch (error) {
+                if (error.code === 4902) {
+                    try {
+                        const provider = window.ethereum || window.web3?.currentProvider;
+                        await provider.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: BASE_CHAIN_ID,
+                                chainName: 'Base',
+                                nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+                                rpcUrls: ['https://mainnet.base.org'],
+                                blockExplorerUrls: ['https://basescan.org']
+                            }]
+                        });
+                        currentChainId = BASE_CHAIN_ID;
+                        updateNetworkDisplay();
+                        showToast('success', 'Network Added', 'Base network added and switched successfully.');
+                    } catch (addError) {
+                        showToast('error', 'Network Error', 'Failed to add Base network. Please add it manually.');
+                    }
+                } else {
+                    showToast('error', 'Network Error', 'Failed to switch to Base network.');
+                }
+            }
+        }
+
+        async function switchToChain(targetChainIdHex, chainName) {
+            try {
+                const provider = window.ethereum || window.web3?.currentProvider;
+                if (!provider || !targetChainIdHex) return;
+                
+                await provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: targetChainIdHex }],
+                });
+                currentChainId = targetChainIdHex;
+                updateNetworkDisplay();
+                const label = chainName || 'selected network';
+                showToast('success', 'Network Switched', 'Successfully switched to ' + label + '.');
+            } catch (error) {
+                if (error && error.code === 4902) {
+                    const label = chainName || 'this network';
+                    showToast('error', 'Network Error', 'This network is not added to your wallet yet. Please add ' + label + ' manually and try again.');
+                } else {
+                    showToast('error', 'Network Error', 'Failed to switch network. Please switch in your wallet and try again.');
+                }
+                throw error;
+            }
+        }
+
+        async function initiateBridge() {
+            resetBridgeSteps();
+            openBridgeProgressModal();
+
+            if (!userAddress) {
+                setBridgeStepState('wallet', 'error', 'Wallet not connected', '!');
+                showToast('error', 'Not Connected', 'Please connect your wallet first.');
+                return;
+            }
+            setBridgeStepState('wallet', 'completed', 'Connected', '✓');
+
+            const asset = selectedAsset;
+            if (!asset || !asset.token) {
+                setBridgeStepState('approve', 'error', 'No source asset selected', '!');
+                showToast('error', 'No asset selected', 'Please select a token to bridge from first.');
+                return;
+            }
+
+            const token = asset.token;
+            const tokenSymbol = token.symbol || token.name || 'Token';
+            const tokenAddress = (token.address || '').toLowerCase();
+            const isEvmToken = tokenAddress.startsWith('0x');
+
+            if (!isEvmToken) {
+                setBridgeStepState('approve', 'error', 'Non-EVM assets are not supported from this wallet yet', '!');
+                showToast('error', 'Unsupported chain', 'Assets on ' + (asset.chainName || 'non-EVM chains') + ' cannot be bridged directly from this interface.');
+                return;
+            }
+
+            const polymarketAddr = document.getElementById('polymarketAddress').value.trim();
+            const amountInputEl = document.getElementById('amount');
+            const amountStr = amountInputEl.value;
+            const amount = parseFloat(amountStr);
+            const minAmount = getCurrentMinAmount();
+            const decimals = (typeof token.decimals === 'number' && token.decimals >= 0) ? token.decimals : 18;
+
+            const isBaseUsdcSelected = !!(asset &&
+                String(asset.chainId) === '8453' &&
+                token &&
+                token.address &&
+                token.address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase());
+
+            if (!polymarketAddr || !polymarketAddr.match(/^0x[a-fA-F0-9]{40}$/)) {
+                setBridgeStepState('approve', 'error', 'Invalid Polymarket address', '!');
+                showToast('error', 'Invalid Address', 'Please enter a valid Polymarket wallet address.');
+                return;
+            }
+
+            if (!amount || amount < minAmount) {
+                setBridgeStepState('approve', 'error', 'Amount below bridge minimum', '!');
+                showToast('error', 'Amount Too Low', 'Minimum amount is ' + minAmount + ' ' + tokenSymbol + '.');
+                return;
+            }
+
+            if (isBaseUsdcSelected && amount > usdcBalance) {
+                setBridgeStepState('approve', 'error', 'Insufficient balance', '!');
+                showToast('error', 'Insufficient Balance', 'You only have ' + usdcBalance.toFixed(2) + ' ' + tokenSymbol + '.');
+                return;
+            }
+
+            const btn = document.getElementById('bridgeBtn');
+            const originalContent = btn.innerHTML;
+
+            try {
+                const provider = window.ethereum || window.web3?.currentProvider;
+                if (!provider) {
+                    setBridgeStepState('wallet', 'error', 'Wallet provider not found', '!');
+                    showToast('error', 'Wallet Error', 'Wallet provider not found.');
+                    return;
+                }
+
+                const targetChainIdHex = toHexChainId(asset.chainId);
+                if (!targetChainIdHex) {
+                    setBridgeStepState('network', 'error', 'Unsupported chain ID', '!');
+                    showToast('error', 'Network Error', 'Unsupported chain ID for selected asset.');
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    return;
+                }
+
+                if (!currentChainId || currentChainId.toLowerCase() !== targetChainIdHex.toLowerCase()) {
+                    setBridgeStepState('network', 'active', 'Requesting network switch…', '2');
+                    try {
+                        if (targetChainIdHex === BASE_CHAIN_ID) {
+                            await switchToBase();
+                        } else {
+                            await switchToChain(targetChainIdHex, asset.chainName || ('Chain ' + asset.chainId));
+                        }
+                    } catch (switchError) {
+                        console.error('Network switch error:', switchError);
+                        setBridgeStepState('network', 'error', 'Please switch network in your wallet.', '!');
+                        btn.innerHTML = originalContent;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    try {
+                        const updatedChainId = await provider.request({ method: 'eth_chainId' });
+                        currentChainId = updatedChainId;
+                    } catch (chainErr) {
+                        console.error('Error fetching chain after switch:', chainErr);
+                    }
+
+                    if (!currentChainId || currentChainId.toLowerCase() !== targetChainIdHex.toLowerCase()) {
+                        setBridgeStepState('network', 'error', 'Please switch to ' + (asset.chainName || 'the correct network') + ' in your wallet.', '!');
+                        btn.innerHTML = originalContent;
+                        btn.disabled = false;
+                        return;
+                    }
+                }
+
+                setBridgeStepState('network', 'completed', 'On ' + (asset.chainName || 'selected network'), '✓');
+
+                btn.disabled = true;
+                btn.innerHTML = '<div class="loader"></div>Getting deposit address...';
+                setBridgeStepState('approve', 'active', 'Preparing transaction…', '3');
+
+                const depositAddress = await getDepositAddress(polymarketAddr);
+                
+                if (!depositAddress) {
+                    throw new Error('Failed to get deposit address');
+                }
+
+                showToast('info', 'Confirm Transaction', 'Please approve the transaction in your wallet.');
+                btn.innerHTML = '<div class="loader"></div>Waiting for approval...';
+
+                let amountUnits;
+                try {
+                    amountUnits = parseAmountToUnits(amountStr, decimals);
+                } catch (convError) {
+                    console.error('Amount parse error:', convError);
+                    setBridgeStepState('approve', 'error', 'Invalid amount format', '!');
+                    showToast('error', 'Invalid Amount', 'Please enter a valid amount for ' + tokenSymbol + '.');
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    return;
+                }
+
+                if (amountUnits <= 0n) {
+                    setBridgeStepState('approve', 'error', 'Amount must be greater than zero', '!');
+                    showToast('error', 'Invalid Amount', 'Please enter an amount greater than 0.');
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const isNativeToken = tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+                const cleanedDeposit = depositAddress.replace(/^0x/, '');
+                const txParams = {
+                    from: userAddress
+                };
+
+                if (isNativeToken) {
+                    txParams.to = '0x' + cleanedDeposit;
+                    txParams.value = '0x' + amountUnits.toString(16);
+                } else {
+                    const toAddress = cleanedDeposit.padStart(64, '0');
+                    const valueHex = amountUnits.toString(16).padStart(64, '0');
+                    const transferData = '0xa9059cbb' + toAddress + valueHex;
+                    txParams.to = token.address;
+                    txParams.data = transferData;
+                    txParams.value = '0x0';
+                }
+
+                const txHash = await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [txParams]
+                });
+
+                btn.innerHTML = '<div class="loader"></div>Processing transaction...';
+                setBridgeStepState('approve', 'completed', 'Transaction sent', '✓');
+                setBridgeStepState('complete', 'active', 'Waiting for confirmations…', '4');
+
+                saveTransaction(txHash, amount);
+
+                let successMessage = amount + ' ' + tokenSymbol + ' is on its way to Polymarket.';
+                if (currentChainId === BASE_CHAIN_ID) {
+                    successMessage += ' <a href="https://basescan.org/tx/' + txHash + '" target="_blank" class="toast-link">View on BaseScan →</a>';
+                }
+                showToast('success', 'Bridge Successful! 🎉', successMessage);
+                
+                document.getElementById('polymarketAddress').value = '';
+                document.getElementById('amount').value = '';
+                updateUSDValue();
+                
+                setTimeout(() => getUSDCBalance(), 3000);
+
+                setBridgeStepState('complete', 'completed', 'Bridge submitted', '✓');
+                setTimeout(() => closeBridgeProgressModal(), 4000);
+                
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error('Bridge error:', error);
+                
+                let errorMsg = 'Transaction failed. ';
+                if (error.code === 4001) {
+                    errorMsg = 'Transaction was rejected.';
+                } else if (error.message) {
+                    errorMsg += error.message;
+                }
+                
+                setBridgeStepState('approve', 'error', 'Transaction failed', '!');
+                showToast('error', 'Bridge Failed', errorMsg);
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+
+        async function getDepositAddress(polymarketAddress) {
+            try {
+                const response = await fetch(POLYMARKET_BRIDGE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: polymarketAddress })
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+                const data = await response.json();
+                
+                if (data.address && data.address.evm) {
+                    return data.address.evm;
+                } else {
+                    throw new Error('No EVM address in response');
+                }
+            } catch (error) {
+                console.error('Error getting deposit address:', error);
+                throw error;
+            }
+        }
+
+        function setAmount(value) {
+            document.getElementById('amount').value = value;
+            updateUSDValue();
+        }
+
+        function setMaxAmount() {
+            document.getElementById('amount').value = usdcBalance.toFixed(2);
+            updateUSDValue();
+        }
+
+        function updateUSDValue() {
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            document.getElementById('usdValue').textContent = `${amount.toFixed(2)} USD`;
+        }
+
+        async function estimateGasFee() {
+            try {
+                const provider = window.ethereum || window.web3?.currentProvider;
+                if (!provider) return;
+                
+                const gasPrice = await provider.request({ method: 'eth_gasPrice' });
+                const gasPriceGwei = parseInt(gasPrice, 16) / 1e9;
+                const estimatedGas = 65000;
+                const gasCostEth = (gasPriceGwei * estimatedGas) / 1e9;
+                const gasCostUSD = gasCostEth * 3000;
+                document.getElementById('gasFee').textContent = `~${gasCostUSD.toFixed(4)}`;
+            } catch (error) {
+                console.error('Error estimating gas:', error);
+            }
+        }
+
+        function saveTransaction(txHash, amount) {
+            const tx = {
+                hash: txHash,
+                amount: amount,
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            
+            recentTransactions.unshift(tx);
+            if (recentTransactions.length > 5) recentTransactions.pop();
+            
+            localStorage.setItem('polymarket_txs', JSON.stringify(recentTransactions));
+            displayRecentTransactions();
+        }
+
+        function loadRecentTransactions() {
+            const stored = localStorage.getItem('polymarket_txs');
+            if (stored) {
+                recentTransactions = JSON.parse(stored);
+                if (recentTransactions.length > 0) {
+                    displayRecentTransactions();
+                }
+            }
+        }
+
+        function displayRecentTransactions() {
+            if (recentTransactions.length === 0) return;
+            
+            const txList = document.getElementById('txList');
+            const recentTxSection = document.getElementById('recentTx');
+            
+            txList.innerHTML = recentTransactions.map(tx => `
+                <div class="tx-item">
+                    <div>
+                        <div class="tx-status">✓ Completed</div>
+                        <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                            ${new Date(tx.timestamp).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tx-amount">${tx.amount.toFixed(2)} USDC</div>
+                        <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="font-size: 11px; color: #7c3aed; text-decoration: none;">
+                            View →
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            
+            recentTxSection.style.display = 'block';
+        }
+
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideDown 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function updateNetworkDisplay() {
+            const warning = document.getElementById('networkWarning');
+            const switchSection = document.getElementById('switchNetworkSection');
+            const dropdownNetwork = document.getElementById('dropdownNetwork');
+            
+            if (currentChainId === BASE_CHAIN_ID) {
+                warning.classList.add('hidden');
+                switchSection.classList.add('hidden');
+                dropdownNetwork.textContent = 'Base Mainnet ✓';
+                dropdownNetwork.style.color = '#10b981';
+            } else {
+                warning.classList.remove('hidden');
+                switchSection.classList.remove('hidden');
+                dropdownNetwork.textContent = 'Wrong Network ⚠️';
+                dropdownNetwork.style.color = '#ef4444';
+            }
+        }
+
+        function formatAddress(address) {
+            return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        }
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
