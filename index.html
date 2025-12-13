@@ -7,9 +7,9 @@
   <style>
     :root{
       --bg:#000000;--bg-card:rgba(8,8,8,.98);--bg-soft:rgba(15,15,15,.9);
-      --border-soft:rgba(147,51,234,.25);--accent:#9333ea;--accent2:#a855f7;
+      --border-soft:rgba(147,51,234,.25);--accent:#E600A9;--accent2:#FF4DC4;
       --accent-soft:rgba(147,51,234,.15);--txt:#ffffff;--muted:#a3a3a3;--glow:rgba(147,51,234,.65);
-      --purple-light:#c084fc;--purple-dark:#7e22ce;
+      --purple-light:6A00FF;--purple-dark:#FFA6E8;
       --nav-h:70px;--radius:1.1rem;--shadow:0 24px 80px rgba(0,0,0,.85)
     }
 
@@ -134,7 +134,7 @@
     header.nav{
       position:fixed;inset:0 0 auto 0;height:var(--nav-h);z-index:40;
       backdrop-filter:blur(18px);
-      background:rgba(0,0,0,.92);
+      background-color: transparent;
       border-bottom:1px solid rgba(255,255,255,.08);
     }
 
@@ -236,7 +236,7 @@
     }
     .core{
       position:absolute;inset:64px;border-radius:999px;
-      background:radial-gradient(circle,#9333ea 0,#000000 70%);
+      background:radial-gradient(circle,#E600A9 0,#000000 70%);
       box-shadow:0 0 50px rgba(147,51,234,.4);
     }
 
@@ -263,7 +263,7 @@
 
     .card::before{
       content:"";position:absolute;inset:-40% -40% auto auto;
-      background:radial-gradient(circle at top,#9333ea 0,transparent 55%);
+      background:radial-gradient(circle at top,#E600A9 0,transparent 55%);
       opacity:.08;pointer-events:none;
     }
 
@@ -334,7 +334,7 @@
 
     .sale-card::before{
       content:"";position:absolute;inset:auto -20% -60%;height:240px;
-      background:radial-gradient(circle at bottom,#9333ea 0,transparent 60%);
+      background:radial-gradient(circle at bottom,#E600A9 0,transparent 60%);
       opacity:.07;pointer-events:none;
     }
 
@@ -659,7 +659,7 @@
     }
 
     .footer-links a:hover {
-      color: #a855f7;
+      color: #FF4DC4;
     }
 
     .social-icons {
@@ -686,7 +686,7 @@
 
     .social-icon:hover {
       background: rgba(147, 51, 234, 0.2);
-      border-color: #a855f7;
+      border-color: #FF4DC4;
       transform: translateY(-2px);
     }
 
@@ -735,8 +735,8 @@
 <header class="nav">
   <div class="nav-inner">
     <div class="brand">
-      <div class="logo-orb"></div>
-      <span>XORION</span>
+      <div class=""><img src="https://explorer.xorion.network/logo.svg" width="60px" height="60px"/></div>
+      <span><h2>XORION</h2></span>
     </div>
     <button class="mobile-menu-btn" id="mobile-menu-toggle">☰</button>
     <div class="nav-links" id="nav-links">
@@ -760,9 +760,10 @@
             <span>On‑chain liquidity layer for Web3</span>
           </div>
           <div class="kicker">XORION PRESALE</div>
-          <h1 class="title-lg">Enter the next gen liquidity orbit.</h1>
+          <h1 class="title-lg">Explore the Blockchain
+Effortlessly.</h1>
           <p class="subtitle">
-            Participate in the XORION presale and be early to a cross‑chain execution engine built for high‑frequency DeFi and Web3 infrastructure.
+            Participate in the XORION presale and be early to a cross‑chain execution, Your comprehensive portal for real-time network statistics, staking insights, and transaction tracking..
           </p>
           <div class="btn-row">
             <button class="btn" onclick="document.querySelector('#presale').scrollIntoView({behavior:'smooth'})">
@@ -775,14 +776,11 @@
           <div class="hero-stat-row">
             <span class="stat-chip">Chain: <strong>BNB Smart Chain</strong></span>
             <span class="stat-chip">Assets: <strong>BNB, USDT</strong></span>
-            <span class="stat-chip">Listing: <strong>$0.10</strong></span>
+            <span class="stat-chip">Listing: <strong>$0.06</strong></span>
           </div>
         </div>
         <div class="hero-orbit-wrap">
-          <div class="hero-orbit">
-            <div class="ring ring-large"></div>
-            <div class="ring"></div>
-            <div class="core"></div>
+          <center><img src="https://pbs.twimg.com/media/G7aTjugXgAAGNss.jpg" width="95%"/></center>
           </div>
         </div>
       </div>
@@ -800,7 +798,7 @@
             Connect your wallet, choose your asset, and secure allocation into XORION. The presale settles on BNB with support for BNB and USDT payments.
           </p>
           <p class="muted">
-            Progress updates: connect wallet → switch to BNB chain → execute ERC‑20 transfer to the sale contract → confirm successful participation.
+            Progress updates: connect wallet → switch to BNB chain → execute ERC‑20 transfer to the sale contract → confirm successful participation → wait for distribution and claim updates.
           </p>
         </div>
         <div class="card">
@@ -835,21 +833,21 @@
           <div class="info-grid">
             <div class="pill">
               <strong>Token price</strong>
-              1 XORION = <span class="muted">$0.01</span>
+              1 XORION = <span class="muted">$0.035</span>
             </div>
             <div class="pill">
               <strong>Listing price</strong>
-              <span class="muted">$0.10</span> on launch
+              <span class="muted">$0.06</span> on launch
             </div>
           </div>
           <div class="info-grid">
             <div class="pill">
               <strong>Soft cap</strong>
-              <span class="muted">$250,000</span>
+              <span class="muted">$10,000</span>
             </div>
             <div class="pill">
               <strong>Hard cap</strong>
-              <span class="muted">$2,500,000</span>
+              <span class="muted">$50,000</span>
             </div>
           </div>
           <div class="countdown">
@@ -867,7 +865,7 @@
             </button>
           </div>
           <p class="note">
-            Transactions are executed from your connected wallet on BNB Smart Chain. Funds are sent to: 0xf2f...A1fE
+            Transactions are executed from your connected wallet on BNB Smart Chain.
           </p>
         </div>
       </div>
@@ -880,21 +878,17 @@
       <div class="sale-card">
         <h2 class="sale-title">Sale Structure</h2>
         <p class="sale-sub">
-          A professional sale layout styled for Web3 participants, inspired by platforms like CoinList and Binance.
+          Live blockchain metrics, block times, and network health at a glance.
         </p>
         <table class="sale-table">
           <tbody>
           <tr>
             <td class="sale-label">Sale Date</td>
-            <td class="sale-value">December 11, 2025 at 17:00 UTC – December 18, 2025 at 17:00 UTC</td>
+            <td class="sale-value">December 15, 2025 at 17:00 UTC – December 25, 2025 at 17:00 UTC</td>
           </tr>
           <tr>
             <td class="sale-label">Token Price</td>
-            <td class="sale-value">$0.01 (Presale) / $0.10 (Listing)</td>
-          </tr>
-          <tr>
-            <td class="sale-label">Fully Diluted Value</td>
-            <td class="sale-value">$100,000,000 (33% discount to last private round)</td>
+            <td class="sale-value">$0.035 (Presale) / $0.06 (Listing)</td>
           </tr>
           <tr>
             <td class="sale-label">Total Supply</td>
@@ -915,10 +909,6 @@
           <tr>
             <td class="sale-label">Payment Methods</td>
             <td class="sale-value">BNB, USDT (BEP-20 on BNB Smart Chain)</td>
-          </tr>
-          <tr>
-            <td class="sale-label">Receiving Address</td>
-            <td class="sale-value" style="word-break:break-all">0xf2f23B0930A4F4D5B35Ae3E0AbC16FF92072A1fE</td>
           </tr>
           <tr>
             <td class="sale-label">Eligible Participants</td>
@@ -949,8 +939,8 @@
              class="feature-image build">
         <div class="feature-content">
           <div class="feature-text">
-            <h2 class="feature-title">Build</h2>
-            <p class="feature-description">Create apps over decentralised AI primitives.</p>
+            <h2 class="feature-title">Advanced Staking</h2>
+            <p class="feature-description">Delegate, claim rewards, and compare validators with ease.</p>
           </div>
           <button class="feature-btn" onclick="window.location.href='#build'">
             Learn More
@@ -965,12 +955,12 @@
              class="feature-image contribute">
         <div class="feature-content">
           <div class="feature-text">
-            <h2 class="feature-title">Contribute</h2>
-            <p class="feature-description">Help train and evaluate better models.</p>
+            <h2 class="feature-title">Transaction Explorer</h2>
+            <p class="feature-description">Track every transaction and block with powerful search and filters.</p>
           </div>
-          <button class="feature-btn" onclick="window.location.href='#contribute'">
+         <a href="https://explorer.xorion.network"> <button class="feature-btn" onclick="window.location.href='#contribute'">
             Learn More
-          </button>
+          </button></a>
         </div>
       </div>
     </div>
@@ -986,8 +976,8 @@
              class="feature-image compete">
         <div class="feature-content">
           <div class="feature-text">
-            <h2 class="feature-title">Compete</h2>
-            <p class="feature-description">Put your convictions to the test.</p>
+            <h2 class="feature-title">Secure & Fast</h2>
+            <p class="feature-description">Built for performance, security, and reliability.</p>
           </div>
           <button class="feature-btn" onclick="window.location.href='#compete'">
             Learn More
@@ -1002,8 +992,9 @@
              class="feature-image token">
         <div class="feature-content">
           <div class="feature-text">
-            <h2 class="feature-title">$AI</h2>
-            <p class="feature-description">Pre-register for Gensyn's $AI sale.</p>
+            <h2 class="feature-title">Validator Insights</h2>
+            <p class="feature-description">
+Compare, analyze, and choose the best validators for your needs.</p>
           </div>
           <button class="feature-btn" onclick="window.open('#presale', '_blank')">
             Learn More
@@ -1024,8 +1015,8 @@
       <div class="footer-column">
         <h3>Foundation</h3>
         <div class="footer-links">
-          <a href="#privacy">Privacy Policy</a>
-          <a href="#brand">Brand Tools</a>
+          <a href="https://explorer.xorion.network">About</a>
+          <a href="https://explorer.xorion.network/explorer">Explorer</a>
         </div>
       </div>
 
@@ -1045,22 +1036,16 @@
             </svg>
           </a>
 
-          <!-- YouTube -->
-          <a href="#" class="social-icon" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-          </a>
 
           <!-- X (Twitter) -->
-          <a href="#" class="social-icon" aria-label="X">
+          <a href="https://x.com/xorion_network" class="social-icon" aria-label="X">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
           </a>
 
           <!-- GitHub -->
-          <a href="#" class="social-icon" aria-label="GitHub">
+          <a href="https://github.com/xorion-network" class="social-icon" aria-label="GitHub">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="12" r="10" opacity="0.3"/>
               <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
