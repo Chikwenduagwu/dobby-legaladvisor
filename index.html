@@ -1303,16 +1303,17 @@ Compare, analyze, and choose the best validators for your needs.</p>
     updateXorEstimate();
   }
 
-  function updateBalance() {
-    if (!walletConnected || !currentAccount) {
+  async function loadBalances() {
+    if (!walletConnected || !currentAccount || !window.ethereum) {
       balances.USDT = 0;
       balances.BNB = 0;
       updateBalanceUI();
       return;
     }
+
     try {
       // Get BNB balance
-      const wei = window.ethereum.request({
+      const wei = await window.ethereum.request({
         method: "eth_getBalance",
         params: [currentAccount, "latest"]
       });
@@ -1321,11 +1322,12 @@ Compare, analyze, and choose the best validators for your needs.</p>
       console.error("Error loading BNB balance:", e);
       balances.BNB = 0;
     }
+
     try {
       // Get USDT balance
       const addrPadded = currentAccount.replace(/^0x/, "").padStart(64, "0");
       const data = "0x70a08231" + addrPadded;
-      const result = window.ethereum.request({
+      const result = await window.ethereum.request({
         method: "eth_call",
         params: [{ to: USDT_TOKEN, data }, "latest"]
       });
@@ -1334,6 +1336,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       console.error("Error loading USDT balance:", e);
       balances.USDT = 0;
     }
+
     updateBalanceUI();
   }
 
@@ -1425,7 +1428,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       walletConnected = true;
       
       await ensureBscChain().catch(() => {});
-      await updateBalance();
+      await loadBalances();
       
       showToast("Wallet connected", `Connected: ${shortAddress(currentAccount)}`, "success");
       return true;
@@ -1515,7 +1518,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
     }
 
     // Refresh balances
-    await updateBalance();
+    await loadBalances();
     
     if (value > balances[currentAsset]) {
       markStep("transfer", "error");
@@ -1532,7 +1535,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       showToast("Transaction submitted", `TX: ${txHash.slice(0, 10)}...`, "success");
       
       // Refresh balances after transaction
-      setTimeout(() => updateBalance(), 2000);
+      setTimeout(() => loadBalances(), 2000);
       setTimeout(() => progressModal.classList.remove("open"), 2000);
     } catch (err) {
       markStep("transfer", "error");
