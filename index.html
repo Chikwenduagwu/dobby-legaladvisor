@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>XORION Presale</title>
+  <title>XORION Private sale</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -746,7 +746,7 @@
     <button class="mobile-menu-btn" id="mobile-menu-toggle">☰</button>
     <div class="nav-links" id="nav-links">
       <a href="#hero">Overview</a>
-      <a href="#presale">Presale</a>
+      <a href="#presale">Private Sale</a>
       <a href="#sale-structure">Sale Structure</a>
       <a href="#more">Docs</a>
       <button class="btn-small btn-outline" id="nav-connect">Connect Wallet</button>
@@ -764,15 +764,15 @@
             <span class="pill-tag">New</span>
             <span>On‑chain liquidity layer for Web3</span>
           </div>
-          <div class="kicker">XORION PRESALE</div>
+          <div class="kicker">XORION PRIVATE SALE</div>
           <h1 class="title-lg">Explore the Blockchain
 Effortlessly.</h1>
           <p class="subtitle">
-            Participate in the XORION presale and be early to a cross‑chain execution, Your comprehensive portal for real-time network statistics, staking insights, and transaction tracking..
+            Participate in the XORION private sale and be early to a cross‑chain execution, Your comprehensive portal for real-time network statistics, staking insights, and transaction tracking..
           </p>
           <div class="btn-row">
             <button class="btn" onclick="document.querySelector('#presale').scrollIntoView({behavior:'smooth'})">
-              Join presale
+              Join private sale
             </button>
             <button class="btn-ghost" onclick="document.querySelector('#sale-structure').scrollIntoView({behavior:'smooth'})">
               View sale structure
@@ -797,10 +797,10 @@ Effortlessly.</h1>
     <div class="inner">
       <div class="presale-grid">
         <div>
-          <div class="kicker">PRESALE PARTICIPATION</div>
-          <h2 class="title-lg">XORION Presale, participate now.</h2>
+          <div class="kicker">SALE PARTICIPATION</div>
+          <h2 class="title-lg">XORION Private sale, participate now.</h2>
           <p class="subtitle">
-            Connect your wallet, choose your asset, and secure allocation into XORION. The presale settles on BNB with support for BNB and USDT payments.
+            Connect your wallet, choose your asset, and secure allocation into XORION. The private sale settles on BNB with support for BNB and USDT payments.
           </p>
           <p class="muted">
             Progress updates: connect wallet → switch to BNB chain → execute ERC‑20 transfer to the sale contract → confirm successful participation → wait for distribution and claim updates.
@@ -1157,6 +1157,10 @@ Compare, analyze, and choose the best validators for your needs.</p>
 
   // State
   const TOKEN_PRICE_USD = 0.035;
+  const COINGECKO_BNB_URL = "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd";
+  const BNB_PRICE_TTL_MS = 60000; // 60s cache
+  let bnbPriceUSD = null;
+  let lastBnbPriceFetch = 0;
   let walletConnected = false;
   let currentAccount = null;
   let currentAsset = "USDT";
@@ -1266,7 +1270,30 @@ Compare, analyze, and choose the best validators for your needs.</p>
     optBnbBal.textContent = `${balances.BNB.toFixed(4)} BNB`;
   }
 
-  function updateXorEstimate() {
+  async function fetchBnbPrice() {
+    const now = Date.now();
+    if (bnbPriceUSD && (now - lastBnbPriceFetch) < BNB_PRICE_TTL_MS) {
+      return bnbPriceUSD;
+    }
+    try {
+      const res = await fetch(COINGECKO_BNB_URL);
+      if (!res.ok) throw new Error("Failed to fetch BNB price");
+      const data = await res.json();
+      const price = data?.binancecoin?.usd;
+      if (typeof price !== "number" || !isFinite(price) || price <= 0) {
+        throw new Error("Invalid BNB price from API");
+      }
+      bnbPriceUSD = price;
+      lastBnbPriceFetch = now;
+      return bnbPriceUSD;
+    } catch (e) {
+      console.error("Error fetching BNB price:", e);
+      bnbPriceUSD = null;
+      return null;
+    }
+  }
+
+  async function updateXorEstimate() {
     if (!xorEstimate) return;
     const raw = amountInput.value.trim();
     const value = parseFloat(raw);
@@ -1274,12 +1301,26 @@ Compare, analyze, and choose the best validators for your needs.</p>
       xorEstimate.textContent = "";
       return;
     }
+
     if (currentAsset === "USDT") {
       const tokens = value / TOKEN_PRICE_USD;
       xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} XORION`;
-    } else {
-      xorEstimate.textContent = "";
+      return;
     }
+
+    if (currentAsset === "BNB") {
+      const price = await fetchBnbPrice();
+      if (!price) {
+        xorEstimate.textContent = "";
+        return;
+      }
+      const usdValue = value * price;
+      const tokens = usdValue / TOKEN_PRICE_USD;
+      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} XORION (BNB ~$${price.toFixed(2)} USD)`;
+      return;
+    }
+
+    xorEstimate.textContent = "";
   }
 
   function setMaxAmount() {
