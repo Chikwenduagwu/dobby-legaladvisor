@@ -965,7 +965,7 @@ Effortlessly.</h1>
             <h2 class="feature-title">Transaction Explorer</h2>
             <p class="feature-description">Track every transaction and block with powerful search and filters.</p>
           </div>
-         <a href="https://explorer.xorion.network/explorer"> <button class="feature-btn" onclick="window.location.href='#contribute'">
+         <a href="https://scan.xorion.network"> <button class="feature-btn" onclick="window.location.href='#contribute'">
             Visit
           </button></a>
         </div>
@@ -993,7 +993,7 @@ Effortlessly.</h1>
       </div>
 
       <!-- Token Sale Card -->
-      <div class="feature-card">
+      <!--<div class="feature-card">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&h=400&fit=crop" 
              alt="Token Sale" 
              class="feature-image token">
@@ -1011,7 +1011,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
           </button>
         </div>
       </div>
-    </div>
+    </div>-->
 
     <!-- Footer Divider -->
     <hr class="footer-divider">
@@ -1304,7 +1304,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
 
     if (currentAsset === "USDT") {
       const tokens = value / TOKEN_PRICE_USD;
-      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} XORION`;
+      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} $XOR`;
       return;
     }
 
@@ -1316,7 +1316,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       }
       const usdValue = value * price;
       const tokens = usdValue / TOKEN_PRICE_USD;
-      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} XORION (BNB ~$${price.toFixed(2)} USD)`;
+      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} $XOR (BNB ~$${price.toFixed(2)} USD)`;
       return;
     }
 
