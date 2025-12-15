@@ -780,7 +780,7 @@ Effortlessly.</h1>
           </div>
         </div>
         <div class="hero-orbit-wrap">
-          <center><img src="https://pbs.twimg.com/media/G7aTjugXgAAGNss.jpg" width="95%"/></center>
+          <center><img src="live.png" width="95%"/></center>
           </div>
         </div>
       </div>
@@ -884,7 +884,7 @@ Effortlessly.</h1>
           <tbody>
           <tr>
             <td class="sale-label">Sale Date</td>
-            <td class="sale-value">December 15, 2025 at 17:00 UTC – December 25, 2025 at 17:00 UTC</td>
+            <td class="sale-value">December 15, 2025 at 17:00 UTC – December 18, 2025 at 00:00 UTC</td>
           </tr>
           <tr>
             <td class="sale-label">Token Price</td>
@@ -896,15 +896,15 @@ Effortlessly.</h1>
           </tr>
           <tr>
             <td class="sale-label">Allocated Supply for Sale</td>
-            <td class="sale-value">30,000,000 XORION (3% of total token supply)</td>
+            <td class="sale-value">20,000,000 XORION (2% of total token supply)</td>
           </tr>
           <tr>
             <td class="sale-label">Unlock Schedule</td>
-            <td class="sale-value">100% unlock at TGE</td>
+            <td class="sale-value">20% TGE + 5 Months vesting</td>
           </tr>
           <tr>
             <td class="sale-label">Purchase Limits</td>
-            <td class="sale-value">Minimum: $5 USDT / 0.001 BNB</td>
+            <td class="sale-value">Minimum: $20 USDT / 0.02 BNB</td>
           </tr>
           <tr>
             <td class="sale-label">Payment Methods</td>
@@ -913,9 +913,7 @@ Effortlessly.</h1>
           <tr>
             <td class="sale-label">Eligible Participants</td>
             <td class="sale-value">
-              Excluded participants include US (and its territories), Canada, China, and the EU (except for up to 149
-              natural or legal persons per Member State under MiCAR exemptions), and any individual, country, or
-              territory subject to US, EU, UN, or UK sanctions.
+              EU excluded only, all other countries can participate in the sale.
             </td>
           </tr>
           <tr>
@@ -942,9 +940,9 @@ Effortlessly.</h1>
             <h2 class="feature-title">Advanced Staking</h2>
             <p class="feature-description">Delegate, claim rewards, and compare validators with ease.</p>
           </div>
-          <button class="feature-btn" onclick="window.location.href='#build'">
-            Learn More
-          </button>
+          <a href="https://explorer.xorion.network"> <button class="feature-btn" onclick="window.location.href='#contribute'">
+            Visit
+          </button></a>
         </div>
       </div>
 
@@ -959,7 +957,7 @@ Effortlessly.</h1>
             <p class="feature-description">Track every transaction and block with powerful search and filters.</p>
           </div>
          <a href="https://explorer.xorion.network"> <button class="feature-btn" onclick="window.location.href='#contribute'">
-            Learn More
+            Visit
           </button></a>
         </div>
       </div>
@@ -979,9 +977,9 @@ Effortlessly.</h1>
             <h2 class="feature-title">Secure & Fast</h2>
             <p class="feature-description">Built for performance, security, and reliability.</p>
           </div>
-          <button class="feature-btn" onclick="window.location.href='#compete'">
-            Learn More
-          </button>
+          <a href="https://explorer.xorion.network"> <button class="feature-btn" onclick="window.location.href='#contribute'">
+            Visit
+          </button></a>
         </div>
       </div>
 
@@ -1024,7 +1022,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       <div class="footer-column">
         <h3>Community</h3>
         <div class="footer-links">
-          <a href="#terms">Terms of Service</a>
+          <a href="https://github.com/Xorion-Network/xorion-main/blob/master/whitepaper/xorion%20Whitepaper%201.0.0.3.pdf">Whitepaper</a>
         </div>
         
         <!-- Social Icons -->
@@ -1111,12 +1109,28 @@ Compare, analyze, and choose the best validators for your needs.</p>
 
 <div id="toast-container"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
   // CONFIGURATION - Updated with your wallet address
   const SALE_CONFIG = {
-    receiverAddress: "0xf2f23B0930A4F4D5B35Ae3E0AbC16FF92072A1fE",
-    targetDate: new Date("December 25, 2025 00:00:00 UTC")
+    receiverAddress: "0x26Bab96dAB2E340aB5A4e2ccA0F9a9E14cA7b4e2",
+    targetDate: new Date("December 18, 2025 00:00:00 UTC")
   };
+
+  const PRESALE_CONTRACT_ADDRESS = "0x26Bab96dAB2E340aB5A4e2ccA0F9a9E14cA7b4e2";
+  const PRESALE_ABI = [
+    "function buyWithBNB() payable",
+    "function buyWithUSDT(uint256 usdtAmount)"
+  ];
+  const USDT_ABI = [
+    "function allowance(address owner, address spender) view returns (uint256)",
+    "function approve(address spender, uint256 amount) returns (bool)"
+  ];
+
+  let ethersProvider = null;
+  let ethersSigner = null;
+  let presaleContract = null;
+  let usdtContract = null;
 
   // BSC Network Configuration
   const BSC_CHAIN_ID = "0x38"; // 56 in decimal
@@ -1136,7 +1150,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
   let walletConnected = false;
   let currentAccount = null;
   let currentAsset = "USDT";
-  const minBuy = { USDT: 5, BNB: 0.001 };
+  const minBuy = { USDT: 20, BNB: 0.02 };
   const balances = { USDT: 0, BNB: 0 };
 
   // DOM Elements
@@ -1241,6 +1255,47 @@ Compare, analyze, and choose the best validators for your needs.</p>
   }
 
   // Wallet Functions
+  async function getEthersSigner() {
+    if (!window.ethereum) throw new Error("No EVM wallet found");
+    if (!window.ethers) throw new Error("Ethers.js library not loaded");
+    if (!ethersProvider) {
+      ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+    }
+    if (!ethersSigner) {
+      ethersSigner = ethersProvider.getSigner();
+    }
+    return ethersSigner;
+  }
+
+  async function getPresaleContract() {
+    if (!presaleContract) {
+      const signer = await getEthersSigner();
+      presaleContract = new ethers.Contract(PRESALE_CONTRACT_ADDRESS, PRESALE_ABI, signer);
+    }
+    return presaleContract;
+  }
+
+  async function getUsdtContract() {
+    if (!usdtContract) {
+      const signer = await getEthersSigner();
+      usdtContract = new ethers.Contract(USDT_TOKEN, USDT_ABI, signer);
+    }
+    return usdtContract;
+  }
+
+  async function ensureUsdtAllowance(amount) {
+    const signer = await getEthersSigner();
+    const owner = await signer.getAddress();
+    const usdt = await getUsdtContract();
+    const current = await usdt.allowance(owner, PRESALE_CONTRACT_ADDRESS);
+    if (current.gte(amount)) {
+      return;
+    }
+    showToast("Approval required", "Approving USDT for the presale contract...", "success");
+    const tx = await usdt.approve(PRESALE_CONTRACT_ADDRESS, amount);
+    await tx.wait();
+  }
+
   async function ensureBscChain() {
     if (!window.ethereum) throw new Error("No EVM wallet found");
     
@@ -1358,36 +1413,18 @@ Compare, analyze, and choose the best validators for your needs.</p>
 
   async function sendPurchase(rawAmount) {
     if (!currentAccount) throw new Error("No account connected");
-    
+
+    const presale = await getPresaleContract();
+
     if (currentAsset === "BNB") {
-      // Send BNB directly
-      const wei = parseUnits(rawAmount, 18);
-      const txHash = await window.ethereum.request({
-        method: "eth_sendTransaction",
-        params: [{
-          from: currentAccount,
-          to: SALE_CONFIG.receiverAddress,
-          value: "0x" + wei.toString(16)
-        }]
-      });
-      return txHash;
+      const wei = ethers.utils.parseUnits(rawAmount, 18);
+      const tx = await presale.buyWithBNB({ value: wei });
+      return tx.hash;
     } else {
-      // Send USDT (ERC-20 transfer)
-      const amount = parseUnits(rawAmount, USDT_DECIMALS);
-      const toPadded = SALE_CONFIG.receiverAddress.replace(/^0x/, "").padStart(64, "0");
-      const amountPadded = amount.toString(16).padStart(64, "0");
-      const data = "0xa9059cbb" + toPadded + amountPadded;
-      
-      const txHash = await window.ethereum.request({
-        method: "eth_sendTransaction",
-        params: [{
-          from: currentAccount,
-          to: USDT_TOKEN,
-          data,
-          value: "0x0"
-        }]
-      });
-      return txHash;
+      const amount = ethers.utils.parseUnits(rawAmount, USDT_DECIMALS);
+      await ensureUsdtAllowance(amount);
+      const tx = await presale.buyWithUSDT(amount);
+      return tx.hash;
     }
   }
 
