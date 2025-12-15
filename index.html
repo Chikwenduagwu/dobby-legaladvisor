@@ -292,6 +292,10 @@
       color:var(--txt);font-size:.9rem;transition:border-color .2s;
     }
     .field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(147,51,234,.1)}
+    .field-input-row{
+      display:flex;align-items:center;gap:.5rem;
+    }
+    #xor-estimate{margin-top:.35rem;}
 
     .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.8rem}
     @media(max-width:480px){.info-grid{grid-template-columns:1fr}}
@@ -829,7 +833,11 @@ Effortlessly.</h1>
               <span>Amount in <span id="asset-label">USDT</span></span>
               <span class="muted">Min 1 USDT / 0.001 BNB</span>
             </label>
-            <input type="number" id="amount-input" min="0" step="0.0001" placeholder="Enter amount" />
+            <div class="field-input-row">
+              <input type="number" id="amount-input" min="0" step="0.0001" placeholder="Enter amount" />
+              <button type="button" class="btn-small btn-outline" id="max-btn">Max</button>
+            </div>
+            <p class="muted" id="xor-estimate"></p>
           </div>
           <div class="info-grid">
             <div class="pill">
@@ -1148,6 +1156,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
   };
 
   // State
+  const TOKEN_PRICE_USD = 0.035;
   let walletConnected = false;
   let currentAccount = null;
   let currentAsset = "USDT";
@@ -1164,6 +1173,8 @@ Compare, analyze, and choose the best validators for your needs.</p>
   const connectMain = document.getElementById("connect-main");
   const navConnect = document.getElementById("nav-connect");
   const amountInput = document.getElementById("amount-input");
+  const maxBtn = document.getElementById("max-btn");
+  const xorEstimate = document.getElementById("xor-estimate");
   const buyBtn = document.getElementById("buy-btn");
   const assetModal = document.getElementById("asset-modal");
   const progressModal = document.getElementById("progress-modal");
@@ -1255,6 +1266,77 @@ Compare, analyze, and choose the best validators for your needs.</p>
     optBnbBal.textContent = `${balances.BNB.toFixed(4)} BNB`;
   }
 
+  function updateXorEstimate() {
+    if (!xorEstimate) return;
+    const raw = amountInput.value.trim();
+    const value = parseFloat(raw);
+    if (!raw || isNaN(value) || value <= 0) {
+      xorEstimate.textContent = "";
+      return;
+    }
+    if (currentAsset === "USDT") {
+      const tokens = value / TOKEN_PRICE_USD;
+      xorEstimate.textContent = `You will receive approximately ${tokens.toFixed(2)} XORION`;
+    } else {
+      xorEstimate.textContent = "";
+    }
+  }
+
+  function setMaxAmount() {
+    if (!walletConnected || !currentAccount) {
+      showToast("Connect wallet", "Please connect your wallet first.", "error");
+      return;
+    }
+    const bal = balances[currentAsset] || 0;
+    if (bal <= 0) {
+      showToast("No balance", `Your ${currentAsset} balance is 0.`, "error");
+      return;
+    }
+    let max = bal;
+    if (currentAsset === "BNB") {
+      max = bal * 0.99;
+    }
+    if (max < minBuy[currentAsset]) {
+      max = minBuy[currentAsset];
+    }
+    amountInput.value = max.toFixed(4);
+    updateXorEstimate();
+  }
+
+  function updateBalance() {
+    if (!walletConnected || !currentAccount) {
+      balances.USDT = 0;
+      balances.BNB = 0;
+      updateBalanceUI();
+      return;
+    }
+    try {
+      // Get BNB balance
+      const wei = window.ethereum.request({
+        method: "eth_getBalance",
+        params: [currentAccount, "latest"]
+      });
+      balances.BNB = formatUnitsFromHex(wei, 18, 4);
+    } catch (e) {
+      console.error("Error loading BNB balance:", e);
+      balances.BNB = 0;
+    }
+    try {
+      // Get USDT balance
+      const addrPadded = currentAccount.replace(/^0x/, "").padStart(64, "0");
+      const data = "0x70a08231" + addrPadded;
+      const result = window.ethereum.request({
+        method: "eth_call",
+        params: [{ to: USDT_TOKEN, data }, "latest"]
+      });
+      balances.USDT = formatUnitsFromHex(result, USDT_DECIMALS, 4);
+    } catch (e) {
+      console.error("Error loading USDT balance:", e);
+      balances.USDT = 0;
+    }
+    updateBalanceUI();
+  }
+
   // Wallet Functions
   async function getEthersSigner() {
     if (!window.ethereum) throw new Error("No EVM wallet found");
@@ -1326,46 +1408,9 @@ Compare, analyze, and choose the best validators for your needs.</p>
     }
   }
 
-  async function loadBalances() {
-    if (!walletConnected || !currentAccount || !window.ethereum) {
-      balances.USDT = 0;
-      balances.BNB = 0;
-      updateBalanceUI();
-      return;
-    }
-    
-    try {
-      // Get BNB balance
-      const wei = await window.ethereum.request({
-        method: "eth_getBalance",
-        params: [currentAccount, "latest"]
-      });
-      balances.BNB = formatUnitsFromHex(wei, 18, 4);
-    } catch (e) {
-      console.error("Error loading BNB balance:", e);
-      balances.BNB = 0;
-    }
-    
-    try {
-      // Get USDT balance
-      const addrPadded = currentAccount.replace(/^0x/, "").padStart(64, "0");
-      const data = "0x70a08231" + addrPadded;
-      const result = await window.ethereum.request({
-        method: "eth_call",
-        params: [{ to: USDT_TOKEN, data }, "latest"]
-      });
-      balances.USDT = formatUnitsFromHex(result, USDT_DECIMALS, 4);
-    } catch (e) {
-      console.error("Error loading USDT balance:", e);
-      balances.USDT = 0;
-    }
-    
-    updateBalanceUI();
-  }
-
   async function connectWallet() {
     if (!window.ethereum) {
-      showToast("No wallet detected", "Please install MetaMask or another Web3 wallet.", "error");
+      showToast("No wallet", "Please install MetaMask or another Web3 wallet.", "error");
       return false;
     }
     
@@ -1379,8 +1424,8 @@ Compare, analyze, and choose the best validators for your needs.</p>
       currentAccount = accounts[0];
       walletConnected = true;
       
-      await ensureBscChain();
-      await loadBalances();
+      await ensureBscChain().catch(() => {});
+      await updateBalance();
       
       showToast("Wallet connected", `Connected: ${shortAddress(currentAccount)}`, "success");
       return true;
@@ -1396,6 +1441,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
     assetSymbol.textContent = symbol;
     assetLabel.textContent = symbol;
     updateBalanceUI();
+    updateXorEstimate();
   }
 
   // Transaction Functions
@@ -1469,7 +1515,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
     }
 
     // Refresh balances
-    await loadBalances();
+    await updateBalance();
     
     if (value > balances[currentAsset]) {
       markStep("transfer", "error");
@@ -1486,7 +1532,7 @@ Compare, analyze, and choose the best validators for your needs.</p>
       showToast("Transaction submitted", `TX: ${txHash.slice(0, 10)}...`, "success");
       
       // Refresh balances after transaction
-      setTimeout(() => loadBalances(), 2000);
+      setTimeout(() => updateBalance(), 2000);
       setTimeout(() => progressModal.classList.remove("open"), 2000);
     } catch (err) {
       markStep("transfer", "error");
@@ -1496,6 +1542,11 @@ Compare, analyze, and choose the best validators for your needs.</p>
   }
 
   // Event Listeners
+  if (maxBtn) {
+    maxBtn.addEventListener("click", setMaxAmount);
+  }
+  amountInput.addEventListener("input", updateXorEstimate);
+
   buyBtn.addEventListener("click", () => {
     if (!window.ethereum) {
       showToast("No wallet", "Please install MetaMask or another Web3 wallet.", "error");
